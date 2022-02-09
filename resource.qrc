@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/stone">
+        <file>black.png</file>
+        <file>white.png</file>
+        <file>pan.png</file>
+    </qresource>
+</RCC>
