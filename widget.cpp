@@ -47,7 +47,7 @@ void Widget::on_pBconnect_clicked()
     ui->pBoto->setEnabled(false);
     ui->pBota->setEnabled(false);
     ui->pBata->setEnabled(false);
-    cs = new ConnectServer();
+    cs = new ConnectServer(ui,mf);
     if(cs->connectHost()){//connect suc
         ui->Tstate->setText("connect Server Ok");
         ui->pBready_on->setEnabled(true);

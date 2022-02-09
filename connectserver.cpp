@@ -1,10 +1,12 @@
 #include "pch.h"
 
-ConnectServer::ConnectServer()
+ConnectServer::ConnectServer(Ui::Widget *ui, MyFunc *mf)
 {
     send_b = new char[BUFSIZE];
     recv_b = new char[BUFSIZE];
     msg = new MyFormat();
+    this->ui = ui;
+    this->mf = mf;
     //socket = new QTcpSocket();
 }
 
@@ -64,6 +66,7 @@ bool ConnectServer::connect()
 
 bool ConnectServer::ready_on()
 {
+    if(mf)
     msg->cmd = 1;
     msg->turn = 0;
     msg->data = 1;

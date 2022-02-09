@@ -9,13 +9,15 @@ public:
     char *send_b;
     char *recv_b;
     QTcpSocket socket;
+    Ui::Widget *ui;
+    class MyFunc *mf;
 private:
 
     //static bool fd_flag;
 
 
 public:
-    ConnectServer();
+    ConnectServer(Ui::Widget *ui,class MyFunc *mf);
     ~ConnectServer();
     bool recv();
     //static QTcpSocket* getSocket();

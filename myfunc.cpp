@@ -3,6 +3,7 @@
 MyFunc::MyFunc(Ui::Widget *ui)
 {
     this->ui = ui;
+    remote = 0;
     mode = 0;//1 - 1:1, 2: 1:AI , 3: AI:AI
     turn = 2;
     pan[0].load(":/stone/pan.png");
