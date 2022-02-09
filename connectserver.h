@@ -17,7 +17,7 @@ private:
 public:
     ConnectServer();
     ~ConnectServer();
-    char* recv();
+    bool recv();
     //static QTcpSocket* getSocket();
     bool connectHost();
     bool connect();

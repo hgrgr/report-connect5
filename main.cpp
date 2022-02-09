@@ -2,6 +2,7 @@
 
 char pan[14][14];
 ConnectServer* cs;
+MyFunc* mf;
 
 /*
 만들어야 하는것
@@ -17,5 +18,6 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     Widget w;
     w.show();
+    delete(cs);
     return a.exec();
 }

@@ -24,6 +24,20 @@ private slots:
 
     void on_pBready_off_clicked();
 
+    void on_pBdiscon_clicked();
+
+    void on_pBlocal_clicked();
+
+    void on_pBme_clicked();
+
+    void on_pBai_clicked();
+
+    void on_pBoto_clicked();
+
+    void on_pBota_clicked();
+
+    void on_pBata_clicked();
+
 private:
     Ui::Widget *ui;
     QPixmap pan[3];
