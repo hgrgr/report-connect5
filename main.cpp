@@ -3,6 +3,8 @@
 char pan[14][14];
 ConnectServer* cs;
 MyFunc* mf;
+Game* game;
+//Widget w;
 
 /*
 만들어야 하는것

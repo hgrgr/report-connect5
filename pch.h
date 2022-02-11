@@ -15,10 +15,15 @@
 #include "my_dataformat.h"
 #include "widget.h"
 #include "myfunc.h"
+#include "game.h"
 
 #define BUFSIZE 4
 #define BLACK 0
 #define WHITE 1
+#define ME 1
+#define AI 2
+#define XMASK 0xF0
+#define YMASK 0x0F
 
 typedef unsigned char uint8_t;
 

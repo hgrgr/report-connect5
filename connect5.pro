@@ -10,12 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     connectserver.cpp \
+    game.cpp \
     main.cpp \
     myfunc.cpp \
     widget.cpp
 
 HEADERS += \
     connectserver.h \
+    game.h \
     my_dataformat.h \
     myfunc.h \
     pch.h \

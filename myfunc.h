@@ -14,15 +14,16 @@ public:
     QIcon bStone;
     QIcon wStone;
     std::map<QString,QPushButton*> my_map;
-    std::array<std::array<int,15>,15> i_map;
+//    std::array<std::array<int,15>,15> i_map;
     Ui::Widget *ui;
 public:
     MyFunc(Ui::Widget *ui);
     void mapping();
     void initBoard();
-    void initIBoard();
-    void setGui();
     void enableBoard(bool temp);
+//    void initIBoard();
+//    void setGui();
+
 };
 
 #endif // MYFUNC_H

@@ -17,7 +17,7 @@ MyFunc::MyFunc(Ui::Widget *ui)
 void MyFunc::initBoard()
 {
     QString temp;
-    initIBoard();//i_map init
+    //initIBoard();//i_map init
     for(int i=0;i<15;i++){
         for(int j=0;j<15;j++){
             temp = QString("map_%1_%2").arg(QString::number(i)).arg(QString::number(j));
@@ -36,35 +36,8 @@ void MyFunc::initBoard()
 
 }
 
-void MyFunc::initIBoard()
-{
-    //i_map init
-    for(int i=0;i<15;i++){
-        for(int j=0;j<15;j++){
-            i_map[i][j] = 2;
-        }
-    }
-}
 
-void MyFunc::setGui()
-{
-    QString temp;
-    for(int i=0;i<15;i++){
-        for(int j=0;j<15;j++){
-            if(i_map[i][j] == WHITE){
-                temp = QString("map_%1_%2").arg(QString::number(i)).arg(QString::number(j));
-                my_map[temp]->setIcon(wStone);
-                my_map[temp]->setIconSize(QSize(36,36));
-                my_map[temp]->setFocusPolicy(Qt::NoFocus);
-            }else if(i_map[i][j] == BLACK){
-                temp = QString("map_%1_%2").arg(QString::number(i)).arg(QString::number(j));
-                my_map[temp]->setIcon(bStone);
-                my_map[temp]->setIconSize(QSize(36,36));
-                my_map[temp]->setFocusPolicy(Qt::NoFocus);
-            }
-        }
-    }
-}
+
 
 void MyFunc::enableBoard(bool bit)
 {
