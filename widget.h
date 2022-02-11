@@ -56,7 +56,6 @@ private slots:
     void on_map_0_12_clicked();
     void on_map_0_13_clicked();
     void on_map_0_14_clicked();
-
     void on_map_1_0_clicked();
     void on_map_1_1_clicked();
     void on_map_1_2_clicked();
@@ -72,7 +71,6 @@ private slots:
     void on_map_1_12_clicked();
     void on_map_1_13_clicked();
     void on_map_1_14_clicked();
-
     void on_map_2_0_clicked();
     void on_map_2_1_clicked();
     void on_map_2_2_clicked();
@@ -88,7 +86,6 @@ private slots:
     void on_map_2_12_clicked();
     void on_map_2_13_clicked();
     void on_map_2_14_clicked();
-
     void on_map_3_0_clicked();
     void on_map_3_1_clicked();
     void on_map_3_2_clicked();
@@ -104,7 +101,6 @@ private slots:
     void on_map_3_12_clicked();
     void on_map_3_13_clicked();
     void on_map_3_14_clicked();
-
     void on_map_4_0_clicked();
     void on_map_4_1_clicked();
     void on_map_4_2_clicked();
@@ -120,7 +116,6 @@ private slots:
     void on_map_4_12_clicked();
     void on_map_4_13_clicked();
     void on_map_4_14_clicked();
-
     void on_map_5_0_clicked();
     void on_map_5_1_clicked();
     void on_map_5_2_clicked();
@@ -136,7 +131,6 @@ private slots:
     void on_map_5_12_clicked();
     void on_map_5_13_clicked();
     void on_map_5_14_clicked();
-
     void on_map_6_0_clicked();
     void on_map_6_1_clicked();
     void on_map_6_2_clicked();
@@ -152,7 +146,6 @@ private slots:
     void on_map_6_12_clicked();
     void on_map_6_13_clicked();
     void on_map_6_14_clicked();
-
     void on_map_7_0_clicked();
     void on_map_7_1_clicked();
     void on_map_7_2_clicked();
@@ -168,7 +161,6 @@ private slots:
     void on_map_7_12_clicked();
     void on_map_7_13_clicked();
     void on_map_7_14_clicked();
-
     void on_map_8_0_clicked();
     void on_map_8_1_clicked();
     void on_map_8_2_clicked();
@@ -184,7 +176,6 @@ private slots:
     void on_map_8_12_clicked();
     void on_map_8_13_clicked();
     void on_map_8_14_clicked();
-
     void on_map_9_0_clicked();
     void on_map_9_1_clicked();
     void on_map_9_2_clicked();
@@ -200,7 +191,6 @@ private slots:
     void on_map_9_12_clicked();
     void on_map_9_13_clicked();
     void on_map_9_14_clicked();
-
     void on_map_10_0_clicked();
     void on_map_10_1_clicked();
     void on_map_10_2_clicked();
@@ -216,7 +206,6 @@ private slots:
     void on_map_10_12_clicked();
     void on_map_10_13_clicked();
     void on_map_10_14_clicked();
-
     void on_map_11_0_clicked();
     void on_map_11_1_clicked();
     void on_map_11_2_clicked();
@@ -232,7 +221,6 @@ private slots:
     void on_map_11_12_clicked();
     void on_map_11_13_clicked();
     void on_map_11_14_clicked();
-
     void on_map_12_0_clicked();
     void on_map_12_1_clicked();
     void on_map_12_2_clicked();
@@ -248,7 +236,6 @@ private slots:
     void on_map_12_12_clicked();
     void on_map_12_13_clicked();
     void on_map_12_14_clicked();
-
     void on_map_13_0_clicked();
     void on_map_13_1_clicked();
     void on_map_13_2_clicked();
@@ -264,7 +251,6 @@ private slots:
     void on_map_13_12_clicked();
     void on_map_13_13_clicked();
     void on_map_13_14_clicked();
-
     void on_map_14_0_clicked();
     void on_map_14_1_clicked();
     void on_map_14_2_clicked();

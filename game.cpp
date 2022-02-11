@@ -71,7 +71,7 @@ void Game::putStone(uint8_t y, uint8_t x)
     }else{
         cs->sendStone(y+1,x+1);// 0~14 -> 1~15
         fflush(stdout);
-        cs->recvUpdateEnd();
+//       cs->recvUpdateEnd();
         //i_map[y][x] = turnToggle;
     }
 }
@@ -94,7 +94,7 @@ void Game::gameStart(int turn)
         if(mf->mode == ME){//me
             mf->enableBoard(false);
             ui->Tstate->setText("Wait");
-            cs->recvUpdateEnd();
+//           cs->recvUpdateEnd();
         }else if(mf->mode == AI){//AI
             //recv(update)-wait;
             //minimax();

@@ -89,6 +89,7 @@ void Widget::on_pBready_on_clicked()
                 fflush(stdout);
                 game = new Game(ui,cs,mf);
                 cs->game = game;//connect cs class game - game class
+                cs->readyUpdateSlot();
                 game->gameStart(cs->recv_b[1]);
                 //game->run();
                 //game->start();
@@ -171,83 +172,63 @@ void Widget::on_pBata_clicked()
 void Widget::on_map_0_0_clicked(){
     game->putStone(0,0);
 }
-
 void Widget::on_map_0_1_clicked(){
     game->putStone(0,1);
 }
-
 void Widget::on_map_0_2_clicked(){
     game->putStone(0,2);
 }
-
 void Widget::on_map_0_3_clicked(){
     game->putStone(0,3);
 }
-
 void Widget::on_map_0_4_clicked(){
     game->putStone(0,4);
 }
-
 void Widget::on_map_0_5_clicked(){
     game->putStone(0,5);
 }
-
 void Widget::on_map_0_6_clicked(){
     game->putStone(0,6);
 }
-
 void Widget::on_map_0_7_clicked(){
     game->putStone(0,7);
 }
-
 void Widget::on_map_0_8_clicked(){
     game->putStone(0,8);
 }
-
 void Widget::on_map_0_9_clicked(){
     game->putStone(0,9);
 }
-
 void Widget::on_map_0_10_clicked(){
     game->putStone(0,10);
 }
-
 void Widget::on_map_0_11_clicked(){
     game->putStone(0,11);
 }
-
 void Widget::on_map_0_12_clicked(){
     game->putStone(0,12);
 }
-
 void Widget::on_map_0_13_clicked(){
     game->putStone(0,13);
 }
-
 void Widget::on_map_0_14_clicked(){
     game->putStone(0,14);
 }
-
 void Widget::on_map_1_0_clicked(){
     game->putStone(1,0);
 }
-
 void Widget::on_map_1_1_clicked(){
     game->putStone(1,1);
 }
-
 void Widget::on_map_1_2_clicked(){
     game->putStone(1,2);
 }
-
 void Widget::on_map_1_3_clicked(){
     game->putStone(1,3);
 }
-
 void Widget::on_map_1_4_clicked(){
     game->putStone(1,4);
 }
-
 void Widget::on_map_1_5_clicked(){
     game->putStone(1,5);
 }

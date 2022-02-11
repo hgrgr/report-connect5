@@ -9,6 +9,7 @@ ConnectServer::ConnectServer(Ui::Widget *ui, MyFunc *mf)
     this->ui = ui;
     this->mf = mf;
     //socket = new QTcpSocket();
+
 }
 
 ConnectServer::~ConnectServer()
@@ -30,10 +31,31 @@ bool ConnectServer::recv()
         return false;
 }
 
+void ConnectServer::readyUpdateSlot()
+{
+    QObject::connect(&socket,SIGNAL(readyRead(void)),this,SLOT(recvUpdateEnd(void)));
+}
+
 int ConnectServer::recvUpdateEnd()//recv update packet and update GUI,
 {
     printf("\n recvUpdateENd     ");
     fflush(stdout);
+    qint64 size = socket.read(recv_b,3);
+    if(recv_b[0] == 2 && size != -1){//recv Update packet
+        printf("\n updateEnd = %d %d %d",recv_b[0],recv_b[1],recv_b[2]);
+        fflush(stdout);
+        game->updateBoard(recv_b[2]);
+        game->turnToggle = !(game->turnToggle);//toggle
+        game->setMyTurn();
+//      game->putStone(recv_b[2])
+        return true;
+    }else if(recv_b[0] == 4 && size != -1){//recv End packet
+        printf("- ENd packet");
+        fflush(stdout);
+        return true;
+    }
+    return false;
+    /*
     while(1)
     {
         if(socket.waitForReadyRead()){
@@ -54,6 +76,7 @@ int ConnectServer::recvUpdateEnd()//recv update packet and update GUI,
         }else
             continue;
     }
+    */
 }
 
 int ConnectServer::sendStone(uint8_t y, uint8_t x)
@@ -65,7 +88,7 @@ int ConnectServer::sendStone(uint8_t y, uint8_t x)
     if((socket.write(send_b,3)) > 0){
         printf("\n send Stone = %d %d %d",send_b[0],send_b[1],send_b[2]);
         fflush(stdout);
-        recvUpdateEnd();
+//        recvUpdateEnd();
         return 1;
     }else
         return false;

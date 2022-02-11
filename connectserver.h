@@ -2,8 +2,9 @@
 #define CONNECTSERVER_H
 #include "pch.h"
 
-class ConnectServer
+class ConnectServer: public QObject
 {
+    Q_OBJECT
 public:
     struct MyFormat *msg;
     char *send_b;
@@ -13,14 +14,21 @@ public:
     Ui::Widget *ui;
     class MyFunc *mf;
     class Game *game;
+
+signals:
+    void readyRead();
+public slots:
+    int recvUpdateEnd();
+
 private:
     //static bool fd_flag;
 
 public:
-    ConnectServer(Ui::Widget *ui,class MyFunc *mf);
+    explicit ConnectServer(Ui::Widget *ui,class MyFunc *mf);
     ~ConnectServer();
     bool recv();
-    int recvUpdateEnd();
+    void readyUpdateSlot();
+//    int recvUpdateEnd();
     int sendStone(uint8_t y, uint8_t x);
     //static QTcpSocket* getSocket();
     bool connectHost();
