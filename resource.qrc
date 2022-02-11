@@ -3,5 +3,6 @@
         <file>black.png</file>
         <file>white.png</file>
         <file>pan.png</file>
+        <file>pan_Non.png</file>
     </qresource>
 </RCC>

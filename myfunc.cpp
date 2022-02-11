@@ -9,9 +9,11 @@ MyFunc::MyFunc(Ui::Widget *ui)
     pan[0].load(":/stone/pan.png");
     pan[1].load(":/stone/black.png");
     pan[2].load(":/stone/white.png");
+    pan[3].load(":/stone/pan_Non.png");
     pIcon = pan[0];
     bStone = pan[1];
     wStone = pan[2];
+    nonStone = pan[3];
 }
 
 void MyFunc::initBoard()

@@ -23,6 +23,7 @@ public:
     void putStone(uint8_t y, uint8_t x);
     bool updateBoard(uint8_t xy);
     //
+    int find33(std::array<std::array<int,15>,15> i_map);
     int searchWidth(std::array<std::array<int,15>,15> i_map,int num,bool color);
     int searchLength(std::array<std::array<int,15>,15> i_map,int num,bool color);
     int searchDia(std::array<std::array<int,15>,15> i_map,int num,bool color);
