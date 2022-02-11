@@ -50,33 +50,36 @@ int ConnectServer::recvUpdateEnd()//recv update packet and update GUI,
 //      game->putStone(recv_b[2])
         return true;
     }else if(recv_b[0] == 4 && size != -1){//recv End packet
-        printf("- ENd packet");
+        printf("- ENd packet %d %d %d ", recv_b[0],recv_b[1],recv_b[2]);
+        if(recv_b[1] == 1){//win
+            ui->Tstate->setText("WIN");
+            if(recv_b[2] == 0){
+                ui->Tstate->setText("WIN - (Error)");
+            }else if(recv_b[2] == 1){
+                ui->Tstate->setText("WIN - (TIME OUT)");
+            }else{
+                ui->Tstate->setText("WIN - (Connect 5)");
+                game->updateBoard(recv_b[2]);
+                game->turnToggle = !(game->turnToggle);//toggle
+                game->setMyTurn();
+            }
+        }else if(recv_b[1] == 0){//loser
+            ui->Tstate->setText("Loss");
+            if(recv_b[2] == 0){
+                ui->Tstate->setText("Loss - (Error)");
+            }else if(recv_b[2] == 1){
+                ui->Tstate->setText("Loss - (TIME OUT)");
+            }else{
+                ui->Tstate->setText("Loss - (Connect 5)");
+                game->updateBoard(recv_b[2]);
+                game->turnToggle = !(game->turnToggle);//toggle
+                game->setMyTurn();
+            }
+        }
         fflush(stdout);
         return true;
     }
     return false;
-    /*
-    while(1)
-    {
-        if(socket.waitForReadyRead()){
-            qint64 size = socket.read(recv_b,3);
-            if(recv_b[0] == 2 && size != -1){//recv Update packet
-                printf("\n updateEnd = %d %d %d",recv_b[0],recv_b[1],recv_b[2]);
-                fflush(stdout);
-                game->updateBoard(recv_b[2]);
-                game->turnToggle = !(game->turnToggle);//toggle
-                game->setMyTurn();
-//              game->putStone(recv_b[2])
-                return true;
-            }else if(recv_b[0] == 4 && size != -1){//recv End packet
-                continue;
-            }
-            else
-                continue;
-        }else
-            continue;
-    }
-    */
 }
 
 int ConnectServer::sendStone(uint8_t y, uint8_t x)

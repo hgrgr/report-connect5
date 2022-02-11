@@ -56,8 +56,10 @@ void Widget::on_pBconnect_clicked()
         ui->pBme->setEnabled(true);
         ui->pBai->setEnabled(true);
 
-        if(cs->connect())
+        if(cs->connect()){
+            mf->remote = REMOTE;
             ui->Tstate->setText("connect Server Ok2");
+        }
         else
             ui->Tstate->setText("connect Server Fail2");
 
@@ -127,14 +129,14 @@ void Widget::on_pBdiscon_clicked()
 
 void Widget::on_pBlocal_clicked()
 {
-    mf->remote = 2;
+    mf->remote = LOCAL;
+    game = new Game(ui,cs,mf);
     ui->pBoto->setEnabled(true);
     ui->pBota->setEnabled(true);
     ui->pBata->setEnabled(true);
     ui->pBconnect->setEnabled(false);
     ui->pBdiscon->setEnabled(false);
 }
-
 
 void Widget::on_pBme_clicked()
 {
@@ -151,23 +153,47 @@ void Widget::on_pBai_clicked()
     mf->mode = AI;
 }
 
-
 void Widget::on_pBoto_clicked()
 {
+    mf->mode = OTO;
+    mf->turn = BLACK;
     mf->enableBoard(true);
+    ui->pBoto->setEnabled(false);
+    ui->pBata->setEnabled(false);
+    ui->pBota->setEnabled(false);
+    ui->Tstate->setText("LOCAL 1 : 1");
+    game->gameStart(mf->turn);
 }
-
 
 void Widget::on_pBota_clicked()
 {
+    mf->mode = OTA;
+    mf->turn = qrand()%2;
+    printf("my turn = %d",mf->turn);
+    fflush(stdout);
     mf->enableBoard(true);
+    ui->pBoto->setEnabled(false);
+    ui->pBata->setEnabled(false);
+    ui->pBota->setEnabled(false);
+    ui->Tstate->setText("LOCAL 1 : AI");
+    game->gameStart(mf->turn);
 }
 
 
 void Widget::on_pBata_clicked()
 {
+    mf->mode = ATA;
     mf->enableBoard(false);
+    ui->pBoto->setEnabled(false);
+    ui->pBata->setEnabled(false);
+    ui->pBata->setEnabled(false);
+    ui->Tstate->setText("LOCAL AI : AI");
+    mf->turn = BLACK;
+    game->gameStart(mf->turn);
 }
+
+
+
 
 void Widget::on_map_0_0_clicked(){
     game->putStone(0,0);
