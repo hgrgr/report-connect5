@@ -57,7 +57,7 @@ void Game::putStone(uint8_t y, uint8_t x)
             }
         }
         setGui();
-    }else if(mf->remote == LOCAL){//local
+    }else if(mf->remote == LOCAL){//local -- testing
         if(turnToggle == WHITE){
             if(i_map[y][x] == 1 || i_map[y][x] == 0){//already stone here
                 ui->Tstate->setText("already Stone here");
@@ -107,6 +107,7 @@ void Game::putStone(uint8_t y, uint8_t x)
 
 
         setGui();
+        miniMax(i_map,1,1,1,1);
     }
 
 }
@@ -771,9 +772,139 @@ int Game::check2(std::array<std::array<int, 15>, 15> i_map)
 
 }
 
-int Game::calScore(std::array<std::array<int, 15>, 15> i_map)
+int Game::calScore(std::array<std::array<int, 15>, 15>& p_map)
 {
 
+}
+
+int Game::findSpotW(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+    int m_size = 0;
+    m_size += findW4(p_map, buf_xy, buf_size);
+    m_size += findB4(p_map, buf_xy, buf_size - m_size);
+
+    m_size += findFW3(p_map, buf_xy, buf_size - m_size);
+    m_size += findFB3(p_map, buf_xy, buf_size - m_size);
+    //
+    m_size += findHW3(p_map, buf_xy, buf_size - m_size);
+    m_size += findHB3(p_map, buf_xy, buf_size - m_size);
+
+    m_size += findW2(p_map, buf_xy, buf_size - m_size);
+    m_size += findB2(p_map, buf_xy, buf_size - m_size);
+
+    m_size += findB1(p_map, buf_xy, buf_size - m_size);
+
+    return m_size;
+}
+
+int Game::findSpotB(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+    int m_size = 0;
+    m_size += findB4(p_map, buf_xy, buf_size);
+    m_size += findW4(p_map, buf_xy, buf_size - m_size);
+    m_size += findFB3(p_map, buf_xy, buf_size - m_size);
+    m_size += findFW3(p_map, buf_xy, buf_size - m_size);
+    //
+    m_size += findHB3(p_map, buf_xy, buf_size - m_size);
+    m_size += findHW3(p_map, buf_xy, buf_size - m_size);
+
+    m_size += findB2(p_map, buf_xy, buf_size - m_size);
+    m_size += findW2(p_map, buf_xy, buf_size - m_size);
+
+    m_size += findB1(p_map, buf_xy, buf_size - m_size);
+
+    return m_size;
+}
+
+int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+    int p = 0;
+    int b = 0;
+    for(int j=0; j< 15; j++){
+        for(int i=0; i < 15; i++){
+          if(i + 4 <= 14 ){//wi - check
+              b=0; p=0;
+              for(int t=0 ; t < 5; t++){
+                    if(p_map[j][i + t] == BLACK)
+                        b++;
+                    else if(p_map[j][i + t] == PAN)
+                        p++;
+              }
+              if(b == 4 && p == 1)
+              {
+                  if( i-1 >= 0 && i+5 <= 14){
+                      if( (p_map[j][i-1] == NON || p_map[j][i-1] == PAN) && p_map[j][i+5] == WHITE ){// N - W (왼쪽만 빈경우)
+                          //push
+                      }else if( p_map[j][i-1] == WHITE && (p_map[j][i+5] == NON || p_map[j][i+5] == PAN) ){
+                          //push
+                      }else if( (p_map[j][i-1] == NON || p_map[j][i-1] == PAN) && (p_map[j][i+5] == NON || p_map[j][i+5] == PAN)){
+                        //push
+                      }
+                  }else if( i == 0){
+                      if( p_map[j][i+5] == WHITE){//양쪽다 막힘
+                      }else if( p_map[j][i+5] == NON || p_map[j][i+5] == PAN){//한쪽 뚫림
+                      }
+                  }else if( i == 14){
+                  }
+
+              }
+              }
+          }
+          if(j+4 <= 14){// Le - check
+
+          }
+          if(i+4 <= 14 && j+4 <= 14){// Dia - check
+
+          }
+        }
+    }
+}
+int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+
+}
+int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+
+}
+
+int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+
+}
+
+int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+
+}
+
+int Game::findB2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+
+}
+
+int Game::findW2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+
+}
+
+int Game::findB1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+
+}
+
+int Game::findW1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+
+}
+
+int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+{
+    for(int j = 0; j < 15; j++){
+        for(int i = 0; i < 15; i++){
+
+        }
+    }
 }
 
 bool Game::checkNon(std::array<std::array<int, 15>, 15> i_map)
@@ -781,8 +912,73 @@ bool Game::checkNon(std::array<std::array<int, 15>, 15> i_map)
 
 }
 
-std::vector<std::pair<int, int> > Game::findSpot(std::array<std::array<int, 15>, 15> i_map)
+int Game::miniMax(std::array<std::array<int, 15>, 15> &p_map, int depth, int al, int be, bool turn)
 {
+    if(depth == 5){//cal board
+        int scor = calScore(p_map);
+        return scor;
+    }
+    std::array<std::array<int, 15>, 15> my_b;
+    std::array<std::array<int,2>,10> buf_xy;
+    uint8_t x;
+    uint8_t y;
+    int xy_size;
+// copy board
+    printf("\n ------Test---------\n");
+    for(int j=0; j < 15; j++){//copy Board
+        for(int i=0; i < 15; i++){
+            my_b[j][i] = p_map[j][i];
+           // my_b[j][i] = 1;
+           // printf("%d ",my_b[j][i]);
+        }
+        printf("\n");
+    }
+    printf("\n ------END---------\n");
+    fflush(stdout);
+//
 
+// find spot
+    if(turn == BLACK){
+        xy_size = findSpotB(my_b,buf_xy,10);
+    }
+    else if(turn == WHITE){
+        xy_size = findSpotW(my_b,buf_xy,10);
+    }
+/*
+//
+
+//set_stone
+    int temp =0;
+    //y = buf_xy[t].
+    for(int t = 0; t < xy_size; t++){
+        //my_b[buf_xy[t].first][buf_xy[t].second] = turn; // set Stone
+        if( depth % 2 == 0 && depth != 0){//pick max
+            int max_sc = -1000000 ;
+            for(int i=0; i<10; i++){
+                temp = miniMax(my_b,1,1,1,1);
+                if(max_sc < temp){
+                    max_sc = temp;
+                    //y = buf_xy[t].first;
+                    //x = buf_xy[t].second;
+                }
+            }
+            return max_sc;
+        }else{//pick min
+            int min_sc = 100000000;
+            for(int i=0; i<10; i++){
+                temp = miniMax(my_b,1,1,1,1);
+                if(min_sc > temp){
+                    min_sc = temp;
+                    //y = buf_xy[t].first;
+                    //x = buf_xy[t].second;
+                }
+            }
+            return min_sc;
+        }
+    }
+    if( depth == 0){
+        //put_stone(y,x);
+        return true;
+    }
+    */
 }
-

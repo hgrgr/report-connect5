@@ -33,11 +33,29 @@ public:
     int check4(std::array<std::array<int,15>,15> i_map);// 4 체크
     int check3(std::array<std::array<int,15>,15> i_map);// 3 체크
     int check2(std::array<std::array<int,15>,15> i_map);// 2 체크
-    int calScore(std::array<std::array<int,15>,15> i_map);// 보드 점수 계산
     bool checkNon(std::array<std::array<int,15>,15> i_map);//3-3 체크
-    std::vector<std::pair<int,int>> findSpot(std::array<std::array<int,15>,15> i_map);
     //
-    int miniMax();//miniMax 알고리즘
+    int miniMax(std::array<std::array<int,15>,15>& p_map,int depth, int al, int be, bool turn);
+
+    int calScore(std::array<std::array<int,15>,15>& p_map);// 보드 점수 계산
+    int findSpotW(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy,int buf_size);
+    int findSpotB(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy,int buf_size);
+
+    int findB4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+
+    int findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+
+    int findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+
+    int findB2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findW2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+
+    int findB1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findW1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    //
 };
 
 #endif // GAME_H
