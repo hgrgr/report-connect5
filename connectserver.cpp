@@ -46,8 +46,16 @@ int ConnectServer::recvUpdateEnd()//recv update packet and update GUI,
         fflush(stdout);
         game->updateBoard(recv_b[2]);
         game->turnToggle = !(game->turnToggle);//toggle
+
+        if(game->turnToggle == WHITE)
+            ui->Tstate->setText(" 백 ");
+        else if(game->turnToggle == BLACK)
+            ui->Tstate->setText(" 흑 ");
+
         game->setMyTurn();
-//      game->putStone(recv_b[2])
+        game->find3(&game->i_map);
+        game->find4(&game->i_map);
+        game->setGui();
         return true;
     }else if(recv_b[0] == 4 && size != -1){//recv End packet
         printf("- ENd packet %d %d %d ", recv_b[0],recv_b[1],recv_b[2]);
@@ -62,6 +70,9 @@ int ConnectServer::recvUpdateEnd()//recv update packet and update GUI,
                 game->updateBoard(recv_b[2]);
                 game->turnToggle = !(game->turnToggle);//toggle
                 game->setMyTurn();
+                game->find3(&game->i_map);
+                game->find4(&game->i_map);
+                game->setGui();
             }
         }else if(recv_b[1] == 0){//loser
             ui->Tstate->setText("Loss");
@@ -74,6 +85,9 @@ int ConnectServer::recvUpdateEnd()//recv update packet and update GUI,
                 game->updateBoard(recv_b[2]);
                 game->turnToggle = !(game->turnToggle);//toggle
                 game->setMyTurn();
+                game->find3(&game->i_map);
+                game->find4(&game->i_map);
+                game->setGui();
             }
         }
         fflush(stdout);

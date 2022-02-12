@@ -6,14 +6,14 @@ MyFunc::MyFunc(Ui::Widget *ui)
     remote = 0;
     mode = 0;//1 - 1:1, 2: 1:AI , 3: AI:AI
     turn = 2;
-    pan[0].load(":/stone/pan.png");
-    pan[1].load(":/stone/black.png");
-    pan[2].load(":/stone/white.png");
-    pan[3].load(":/stone/pan_Non.png");
-    pIcon = pan[0];
-    bStone = pan[1];
-    wStone = pan[2];
-    nonStone = pan[3];
+    pan[PAN].load(":/stone/pan.png");
+    pan[BLACK].load(":/stone/black.png");
+    pan[WHITE].load(":/stone/white.png");
+    pan[NON].load(":/stone/pan_Non.png");
+    pIcon = pan[PAN];
+    bStone = pan[BLACK];
+    wStone = pan[WHITE];
+    nonStone = pan[NON];
 }
 
 void MyFunc::initBoard()

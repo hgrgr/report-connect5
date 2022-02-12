@@ -22,6 +22,8 @@
 
 #define BLACK 0
 #define WHITE 1
+#define PAN 2
+#define NON 3
 
 #define ME 1
 #define AI 2

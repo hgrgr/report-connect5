@@ -12,14 +12,7 @@ Widget::Widget(QWidget *parent)
     mf = new MyFunc(ui);
     mf->mapping();
     mf->initBoard();
-/*
-    QIcon pIcon = pan[0];
-    QIcon bStone(pan[1]);
-    QIcon wStone(pan[2]);
-    ui->test_3->setIcon(bStone);
-    ui->test_3->setIconSize(QSize(37,37));
-    ui->test_3->setFocusPolicy(Qt::NoFocus);
-*/
+    ui->turn->setFontPointSize(20);
 }
 
 Widget::~Widget()
@@ -89,6 +82,11 @@ void Widget::on_pBready_on_clicked()
             if(cs->recv_b[0] == 2){//startGame;
                 printf("\nHello Start game ");
                 fflush(stdout);
+                ui->turn->setFontPointSize(20);
+                if(mf->turn == BLACK)
+                    ui->turn->setText("흑");
+                else if(mf->turn == WHITE)
+                    ui->turn->setText("백");
                 game = new Game(ui,cs,mf);
                 cs->game = game;//connect cs class game - game class
                 cs->readyUpdateSlot();
