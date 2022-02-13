@@ -870,11 +870,11 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
             if(p_map[j][i] == PAN){//only PAN
                 if(i+4 <= 14){ // 가로 - N B B B B
                     if(p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK && p_map[j][i+3] == BLACK && p_map[j][i+4] == BLACK){
-                        if( p_map[j][i-1]  != BLACK && i-1>=0)
+                        if( p_map[j][i-1]  != BLACK && i-1>=0) // 좌측 검사
                         {
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
                         }
-                        else if( i == 0)
+                        else if( i == 0) //
                         {   //push(j,i);
                             printf("\n 1-2 find connect 4 - j = %d , i = %d   ",j,i);
                         }
@@ -882,7 +882,7 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                 }
                 if(i-1 >= 0 && i+3 <=14){// 가로 - B N B B B
                     if(p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK && p_map[j][i+3] == BLACK){
-                        if( p_map[j][i-2] != BLACK && p_map[j][i+4] != BLACK && (i-2 >=0 && i+4 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
+                        if( p_map[j][i-2] != BLACK && p_map[j][i+4] != BLACK && (i-2 >=0 && i+4 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if( p_map[j][i-2] != BLACK && i+3 == 14){//좌측 체크 (우측은 이미 끝에 도달)
                             printf("\n 1-4 find connect 4 - j = %d , i = %d   ",j,i);
@@ -895,9 +895,9 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK ){
                         if( p_map[j][i-3] != BLACK && p_map[j][i+3] != BLACK && i+3 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j][i+3] != BLACK && i - 2 == 0){
+                        }else if( p_map[j][i+3] != BLACK && i - 2 == 0){//좌측에 붙어있음 -> 우측만 검사
                             printf("\n 1-7 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j][i-3] != BLACK && i + 2 == 14){
+                        }else if( p_map[j][i-3] != BLACK && i + 2 == 14){//우측에 붙어 있음 -> 좌측만 검사
                             printf("\n 1-8 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
@@ -906,18 +906,18 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j][i-3] == BLACK && p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK){
                         if( p_map[j][i+2] != BLACK && p_map[j][i-4] != BLACK && i+2 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if ( p_map[j][i+2] !=BLACK && i -3 == 0){
+                        }else if ( p_map[j][i+2] !=BLACK && i -3 == 0){//좌측에 붙음 -> 우측만 검사
                             printf("\n 1-10 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j][i-4] != BLACK && i+1 == 14){
+                        }else if( p_map[j][i-4] != BLACK && i+1 == 14){//우측에 붙음 -> 좌측만 검사
                             printf("\n 1-11 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
                 }
                 if( i-4 >= 0){// 가로 - B B B B N
                     if(p_map[j][i-4] == BLACK && p_map[j][i-3] == BLACK && p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK){
-                        if(i == 14){//이미 끝에 도달
+                        if(i == 14){//이미 끝에 도달 - 검사할것 없음(원래는 우측 검사)
                             printf("\n 1-12 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j][i+1] != BLACK && i != 14){
+                        }else if( p_map[j][i+1] != BLACK && i != 14){//우측 검사
                             printf("\n 1-13 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
@@ -925,11 +925,11 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                 //// - 세로
                 if(j+4 <= 14){ // 세로 - N B B B B
                     if(p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK && p_map[j+3][i] == BLACK && p_map[j+4][i] == BLACK){
-                        if( p_map[j-1][i]  != BLACK && j-1>=0)
+                        if( p_map[j-1][i]  != BLACK && j-1>=0)//상단 검사 할거리 있을 경우
                         {
                             printf("\n 2-1 find connect 4 - j = %d , i = %d   ",j,i);
                         }
-                        else if( j== 0)
+                        else if( j== 0)//상단에 붙어있음 - 검사 할거리 없음
                         {   //push(j,i);
                             printf("\n 2-2 find connect 4 - j = %d , i = %d   ",j,i);
                         }
@@ -937,11 +937,11 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                 }
                 if(j-1 >= 0 && j+3 <=14){// 세로 - B N B B B
                     if(p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK && p_map[j+3][i] == BLACK){
-                        if( p_map[j-2][i] != BLACK && p_map[j+4][i] != BLACK && (j-2 >=0 && j+4 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
+                        if( p_map[j-2][i] != BLACK && p_map[j+4][i] != BLACK && (j-2 >=0 && j+4 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                             printf("\n 2-3 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j-2][i] != BLACK && j+3 == 14){//좌측 체크 (우측은 이미 끝에 도달)
+                        }else if( p_map[j-2][i] != BLACK && j+3 == 14){//상단 체크 (하단은 이미 끝에 도달)
                             printf("\n 2-4 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j+4][i] != BLACK && j -1 == 0 ){//우측 체크
+                        }else if( p_map[j+4][i] != BLACK && j -1 == 0 ){//하단 체크 - 상단은 이미 상단에 도달
                             printf("\n 2-5 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
@@ -950,9 +950,9 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK ){
                         if( p_map[j-3][i] != BLACK && p_map[j+3][i] != BLACK && j+3 <= 14 && j-3 >= 0){
                             printf("\n 2-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j+3][i] != BLACK && j - 2 == 0){
+                        }else if( p_map[j+3][i] != BLACK && j - 2 == 0){//상단에 붙어 있을 경우 -> 하단만 검사
                             printf("\n 2-7 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j-3][i] != BLACK && j + 2 == 14){
+                        }else if( p_map[j-3][i] != BLACK && j + 2 == 14){//하단에 붙어 있을경우 -> 상단만 검사
                             printf("\n 2-8 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
@@ -961,18 +961,18 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK){
                         if( p_map[j+2][i] != BLACK && p_map[j-4][i] != BLACK && j+2 <= 14 && j-4 >= 0){
                             printf("\n 2-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if ( p_map[j+2][i] !=BLACK && j -3 == 0){
+                        }else if ( p_map[j+2][i] !=BLACK && j -3 == 0){//상단에 붙음 - 하단만 검사
                             printf("\n 2-10 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j-4][i] != BLACK && j+1 == 14){
+                        }else if( p_map[j-4][i] != BLACK && j+1 == 14){//하단에 붙음 - 상단만 검사
                             printf("\n 2-11 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
                 }
                 if( j-4 >= 0){// 세로 - B B B B N
                     if(p_map[j-4][i] == BLACK && p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK){
-                        if(j == 14){//이미 끝에 도달
+                        if(j == 14){//이미 끝에 도달 - 굳이 상단 검사할 필요없음 - 5개여서
                             printf("\n 2-12 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j+1][i] != BLACK && j != 14){
+                        }else if( p_map[j+1][i] != BLACK && j != 14){//하단 검사
                             printf("\n 2-13 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
@@ -1005,9 +1005,9 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK ){
                         if( p_map[j-3][i-3] != BLACK && p_map[j+3][i+3] != BLACK && i+3 <= 14 && i-3 >= 0 && j+3 <= 14 && j-3 >= 0){
                             printf("\n 3-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j+3][i] != BLACK && (i - 2 == 0 || j - 2 == 0)){
+                        }else if( p_map[j+3][i+3] != BLACK && (i - 2 == 0 || j - 2 == 0)){
                             printf("\n 3-7 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j-3][i] != BLACK && (i + 2 == 14 || j + 2 == 14)){
+                        }else if( p_map[j-3][i-3] != BLACK && (i + 2 == 14 || j + 2 == 14)){
                             printf("\n 3-8 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
@@ -1025,7 +1025,7 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                 }
                 if( i-4 >= 0 && j-4 >= 0){// dia1 - B B B B N
                     if(p_map[j-4][i-4] == BLACK && p_map[j-3][i-3] == BLACK && p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK){
-                        if( i == 14 || j == 14){//이미 끝에 도달
+                        if( i == 14 || j == 14){//이미 끝에 도달 -- 좌측 검사할 필요 없음(5개니까) - 우측 검사할 칸 없음
                             printf("\n 3-12 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if( p_map[j+1][i+1] != BLACK && i != 14 && j != 14){
                             printf("\n 3-13 find connect 4 - j = %d , i = %d   ",j,i);
@@ -1035,11 +1035,11 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                 // DIa 2 - /
                 if( j-4 >=0 && i+4 <= 14){ // dia2 - N B B B B
                     if(p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK && p_map[j-3][i+3] == BLACK && p_map[j-4][i+4] == BLACK){
-                        if( p_map[j+1][i-1]  != BLACK && j+1<=14 && i-1>=0)
+                        if( p_map[j+1][i-1]  != BLACK && j+1<=14 && i-1>=0) // 좌측 검사 - 좌측이 있을 경우
                         {
                             printf("\n 4-1 find connect 4 - j = %d , i = %d   ",j,i);
                         }
-                        else if( i == 14 || j== 0)
+                        else if( j == 14 || i == 0)//ㄴ 라인
                         {   //push(j,i);
                             printf("\n 4-2 find connect 4 - j = %d , i = %d   ",j,i);
                         }
@@ -1047,42 +1047,45 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                 }
                 if( j-3 >= 0 && j+1 <=14 && i-1 >= 0 && i+3 <=14){// dia2 - B N B B B
                     if(p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK && p_map[j-3][i+3] == BLACK){
-                        if( p_map[j+2][i-2] != BLACK && p_map[j-4][i+4] != BLACK && (i-2 >=0 && i+4 <= 14) && (j-4 >=0 && j+2 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
+                        if( p_map[j+2][i-2] != BLACK && p_map[j-4][i+4] != BLACK &&
+                                (i-2 >=0 && i+4 <= 14) && (j-4 >=0 && j+2 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
                             printf("\n 4-3 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j-2][i] != BLACK  && (i+3 == 14 || j-3 == 0)){//좌측 체크 (우측은 이미 끝에 도달)
+                        }else if( p_map[j+2][i-2] != BLACK  && (i+3 == 14 || j-3 == 0)){//좌측 체크 (우측은 이미 끝에 도달) ㄱ 형태
                             printf("\n 4-4 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j+4][i] != BLACK && j -1 == 0 ){//우측 체크
+                        }else if( p_map[j-4][i+4] != BLACK && (j + 1 == 14 || i -1 == 0 )){//우측 체크 ㄴ 형태
                             printf("\n 4-5 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
                 }
                 if(j-2 >=0 && j+2 <=14 && i-2 >=0 && i+2 <=14){// dia2 - B  B N B B
-                    if(p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK ){
-                        if( p_map[j-3][i] != BLACK && p_map[j+3][i] != BLACK && j+3 <= 14 && j-3 >= 0){
+                    if(p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK ){
+                        if( p_map[j+3][i-3] != BLACK && p_map[j-3][i+3] != BLACK &&
+                                (i-3 >=0 && i+3 <=14 ) && (j-3 >=0 && j+3 >= 14)){
                             printf("\n 4-6find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j+3][i] != BLACK && j - 2 == 0){
+                        }else if( p_map[j+3][i-3] != BLACK && ( j == 2 || i == 12)){//하단 검사
                             printf("\n 4-7 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j-3][i] != BLACK && j + 2 == 14){
+                        }else if( p_map[j-3][i+3] != BLACK && ( j == 12 || i == 2)){//상단 검사
                             printf("\n 4-8 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
                 }
-                if( j-1 >=0 && j+3 <= 14 && i-3 >=0 && i+1 <= 14){// dia2 - B B  B N B
-                    if(p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK){
-                        if( p_map[j+2][i] != BLACK && p_map[j-4][i] != BLACK && j+2 <= 14 && j-4 >= 0){
+                if( j+3 <= 14 && i-3 >=0 && j-1 >=0 && i+1 <= 14){// dia2 - B B  B N B
+                    if(p_map[j+3][i-3] == BLACK && p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK){
+                        if( p_map[j+4][i-4] != BLACK && p_map[j-2][i+2] != BLACK &&
+                                (j+4 <= 14 && i-4>=0) && (j-2 >=0 && i+2 <= 14)){// 2<=j<= 10   4<=i<=12
                             printf("\n 4-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if ( p_map[j+2][i] !=BLACK && j -3 == 0){
+                        }else if ( p_map[j+4][i-4] !=BLACK && (j == 1 || i == 13)){
                             printf("\n 4-10 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j-4][i] != BLACK && j+1 == 14){
+                        }else if( p_map[j-2][i+2] != BLACK && (j == 11 || i == 3)){
                             printf("\n 4-11 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
                 }
                 if( j+4 <= 14 && i-4 >= 0){// dia2 - B B B B N
-                    if(p_map[j-4][i] == BLACK && p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK){
-                        if(j == 14){//이미 끝에 도달
+                    if(p_map[j+4][i-4] == BLACK && p_map[j+3][i-3] == BLACK && p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK){
+                        if(p_map[j-1][i+1] !=BLACK && (j-1>=0 && i+1<=14)){//우측 검사 - 우측이 있을 경우
                             printf("\n 4-12 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if( p_map[j+1][i] != BLACK && j != 14){
+                        }else if( j == 0 || i == 14){// 검사 필요 없음
                             printf("\n 4-13 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
@@ -1133,11 +1136,238 @@ int Game::findW1(std::array<std::array<int,15>,15>& p_map, std::array<std::array
 
 int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
 {
+    printf("\n **** find W4******");
+    int p = 0;
+    int b = 0;
     for(int j = 0; j < 15; j++){
-        for(int i = 0; i < 15; i++){
-
+        for(int i =0; i < 15; i++){
+            if( p_map[j][i] == NON ||p_map[j][i] == PAN){//White - PAN, NON
+                if(i+4 <= 14){ // 가로 - N B B B B
+                    if(p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK && p_map[j][i+3] == BLACK && p_map[j][i+4] == BLACK){
+                        if( p_map[j][i-1]  != BLACK && i-1>=0) // 좌측 검사
+                        {
+                            printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                        else if( i == 0) //
+                        {   //push(j,i);
+                            printf("\n 1-2 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if(i-1 >= 0 && i+3 <=14){// 가로 - B N B B B
+                    if(p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK && p_map[j][i+3] == BLACK){
+                        if( p_map[j][i-2] != BLACK && p_map[j][i+4] != BLACK && (i-2 >=0 && i+4 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
+                            printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j][i-2] != BLACK && i+3 == 14){//좌측 체크 (우측은 이미 끝에 도달)
+                            printf("\n 1-4 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j][i+4] != BLACK && i -1 == 0 ){//우측 체크
+                            printf("\n 1-5 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if(i-2 >=0 && i+2 <=14){// 가로 - B  B N B B
+                    if(p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK ){
+                        if( p_map[j][i-3] != BLACK && p_map[j][i+3] != BLACK && i+3 <= 14 && i-3 >= 0){
+                            printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j][i+3] != BLACK && i - 2 == 0){//좌측에 붙어있음 -> 우측만 검사
+                            printf("\n 1-7 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j][i-3] != BLACK && i + 2 == 14){//우측에 붙어 있음 -> 좌측만 검사
+                            printf("\n 1-8 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( i-3 >=0 && i+1 <= 14){// 가로 - B B  B N B
+                    if(p_map[j][i-3] == BLACK && p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK){
+                        if( p_map[j][i+2] != BLACK && p_map[j][i-4] != BLACK && i+2 <= 14 && i-4 >= 0){
+                            printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if ( p_map[j][i+2] !=BLACK && i -3 == 0){//좌측에 붙음 -> 우측만 검사
+                            printf("\n 1-10 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j][i-4] != BLACK && i+1 == 14){//우측에 붙음 -> 좌측만 검사
+                            printf("\n 1-11 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( i-4 >= 0){// 가로 - B B B B N
+                    if(p_map[j][i-4] == BLACK && p_map[j][i-3] == BLACK && p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK){
+                        if(i == 14){//이미 끝에 도달 - 검사할것 없음(원래는 우측 검사)
+                            printf("\n 1-12 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j][i+1] != BLACK && i != 14){//우측 검사
+                            printf("\n 1-13 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                //// - 세로
+                if(j+4 <= 14){ // 세로 - N B B B B
+                    if(p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK && p_map[j+3][i] == BLACK && p_map[j+4][i] == BLACK){
+                        if( p_map[j-1][i]  != BLACK && j-1>=0)//상단 검사 할거리 있을 경우
+                        {
+                            printf("\n 2-1 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                        else if( j== 0)//상단에 붙어있음 - 검사 할거리 없음
+                        {   //push(j,i);
+                            printf("\n 2-2 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if(j-1 >= 0 && j+3 <=14){// 세로 - B N B B B
+                    if(p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK && p_map[j+3][i] == BLACK){
+                        if( p_map[j-2][i] != BLACK && p_map[j+4][i] != BLACK && (j-2 >=0 && j+4 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
+                            printf("\n 2-3 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-2][i] != BLACK && j+3 == 14){//상단 체크 (하단은 이미 끝에 도달)
+                            printf("\n 2-4 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j+4][i] != BLACK && j -1 == 0 ){//하단 체크 - 상단은 이미 상단에 도달
+                            printf("\n 2-5 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if(j-2 >=0 && j+2 <=14){// 세로 - B  B N B B
+                    if(p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK ){
+                        if( p_map[j-3][i] != BLACK && p_map[j+3][i] != BLACK && j+3 <= 14 && j-3 >= 0){
+                            printf("\n 2-6 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j+3][i] != BLACK && j - 2 == 0){//상단에 붙어 있을 경우 -> 하단만 검사
+                            printf("\n 2-7 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-3][i] != BLACK && j + 2 == 14){//하단에 붙어 있을경우 -> 상단만 검사
+                            printf("\n 2-8 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( j-3 >=0 && j+1 <= 14){// 세로 - B B  B N B
+                    if(p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK){
+                        if( p_map[j+2][i] != BLACK && p_map[j-4][i] != BLACK && j+2 <= 14 && j-4 >= 0){
+                            printf("\n 2-9 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if ( p_map[j+2][i] !=BLACK && j -3 == 0){//상단에 붙음 - 하단만 검사
+                            printf("\n 2-10 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-4][i] != BLACK && j+1 == 14){//하단에 붙음 - 상단만 검사
+                            printf("\n 2-11 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( j-4 >= 0){// 세로 - B B B B N
+                    if(p_map[j-4][i] == BLACK && p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK){
+                        if(j == 14){//이미 끝에 도달 - 굳이 상단 검사할 필요없음 - 5개여서
+                            printf("\n 2-12 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j+1][i] != BLACK && j != 14){//하단 검사
+                            printf("\n 2-13 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                // Dia 1 - "\"
+                if( i+4 <= 14 && j+4 <= 14){ // dia1 - N B B B B
+                    if(p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK && p_map[j+3][i+3] == BLACK && p_map[j+4][i+4] == BLACK){
+                        if( p_map[j-1][i-1] != BLACK && j-1>=0 && i-1>=0)//우측에 있으면 이미 5개임 -> 검사할 필요 없음 - 좌측만 돌 없으면 4
+                        {
+                            printf("\n 3-1 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                        else if( i == 0 || j== 0)//좌측에 달라 붙어 있을경우 - 검사 필요 없음
+                        {   //push(j,i);
+                            printf("\n 3-2 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if(i-1 >= 0 && i+3 <=14 && j-1 >= 0 && j+3 <=14){// dia1 - B N B B B
+                    if(p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK && p_map[j+3][i+3] == BLACK){
+                        if( p_map[j-2][i-2] != BLACK && p_map[j+4][i+4] != BLACK && (i-2 >=0 && i+4 <= 14) && (j-2 >=0 && j+4 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
+                            printf("\n 3-3 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-2][i-2] != BLACK && (i+3 == 14 || j+3 == 14)){//좌측 체크 (우측은 이미 끝에 도달)
+                            printf("\n 3-4 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j+4][i+4] != BLACK && (i -1 == 0  || j -1 == 0) ){//우측 체크
+                            printf("\n 3-5 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if(i-2 >=0 && i+2 <=14 && j-2 >=0 && j+2 <=14){// dia1 - B  B N B B
+                    if(p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK ){
+                        if( p_map[j-3][i-3] != BLACK && p_map[j+3][i+3] != BLACK && i+3 <= 14 && i-3 >= 0 && j+3 <= 14 && j-3 >= 0){
+                            printf("\n 3-6 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j+3][i+3] != BLACK && (i - 2 == 0 || j - 2 == 0)){
+                            printf("\n 3-7 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-3][i-3] != BLACK && (i + 2 == 14 || j + 2 == 14)){
+                            printf("\n 3-8 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( i-3 >=0 && i+1 <= 14 && j-3 >=0 && j+1 <= 14){// dia1 - B B  B N B
+                    if(p_map[j-3][i-3] == BLACK && p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK){
+                        if( p_map[j+2][i+2] != BLACK && p_map[j-4][i-4] != BLACK && i+2 <= 14 && i-4 >= 0 && j+2 <= 14 && j-4 >= 0){
+                            printf("\n 3-9 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if ( p_map[j+2][i+2] !=BLACK && (i -3 == 0 || j -3 == 0)){
+                            printf("\n 3-10 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-4][i-4] != BLACK && (i+1 == 14 || j+1 == 14)){
+                            printf("\n 3-11 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( i-4 >= 0 && j-4 >= 0){// dia1 - B B B B N
+                    if(p_map[j-4][i-4] == BLACK && p_map[j-3][i-3] == BLACK && p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK){
+                        if( i == 14 || j == 14){//이미 끝에 도달 -- 좌측 검사할 필요 없음(5개니까) - 우측 검사할 칸 없음
+                            printf("\n 3-12 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j+1][i+1] != BLACK && i != 14 && j != 14){
+                            printf("\n 3-13 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                // DIa 2 - /
+                if( j-4 >=0 && i+4 <= 14){ // dia2 - N B B B B
+                    if(p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK && p_map[j-3][i+3] == BLACK && p_map[j-4][i+4] == BLACK){
+                        if( p_map[j+1][i-1]  != BLACK && j+1<=14 && i-1>=0) // 좌측 검사 - 좌측이 있을 경우
+                        {
+                            printf("\n 4-1 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                        else if( j == 14 || i == 0)//ㄴ 라인
+                        {   //push(j,i);
+                            printf("\n 4-2 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( j-3 >= 0 && j+1 <=14 && i-1 >= 0 && i+3 <=14){// dia2 - B N B B B
+                    if(p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK && p_map[j-3][i+3] == BLACK){
+                        if( p_map[j+2][i-2] != BLACK && p_map[j-4][i+4] != BLACK &&
+                                (i-2 >=0 && i+4 <= 14) && (j-4 >=0 && j+2 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
+                            printf("\n 4-3 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j+2][i-2] != BLACK  && (i+3 == 14 || j-3 == 0)){//좌측 체크 (우측은 이미 끝에 도달) ㄱ 형태
+                            printf("\n 4-4 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-4][i+4] != BLACK && (j + 1 == 14 || i -1 == 0 )){//우측 체크 ㄴ 형태
+                            printf("\n 4-5 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if(j-2 >=0 && j+2 <=14 && i-2 >=0 && i+2 <=14){// dia2 - B  B N B B
+                    if(p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK ){
+                        if( p_map[j+3][i-3] != BLACK && p_map[j-3][i+3] != BLACK &&
+                                (i-3 >=0 && i+3 <=14 ) && (j-3 >=0 && j+3 >= 14)){
+                            printf("\n 4-6find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j+3][i-3] != BLACK && ( j == 2 || i == 12)){//하단 검사
+                            printf("\n 4-7 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-3][i+3] != BLACK && ( j == 12 || i == 2)){//상단 검사
+                            printf("\n 4-8 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( j+3 <= 14 && i-3 >=0 && j-1 >=0 && i+1 <= 14){// dia2 - B B  B N B
+                    if(p_map[j+3][i-3] == BLACK && p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK){
+                        if( p_map[j+4][i-4] != BLACK && p_map[j-2][i+2] != BLACK &&
+                                (j+4 <= 14 && i-4>=0) && (j-2 >=0 && i+2 <= 14)){// 2<=j<= 10   4<=i<=12
+                            printf("\n 4-9 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if ( p_map[j+4][i-4] !=BLACK && (j == 1 || i == 13)){
+                            printf("\n 4-10 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( p_map[j-2][i+2] != BLACK && (j == 11 || i == 3)){
+                            printf("\n 4-11 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+                if( j+4 <= 14 && i-4 >= 0){// dia2 - B B B B N
+                    if(p_map[j+4][i-4] == BLACK && p_map[j+3][i-3] == BLACK && p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK){
+                        if(p_map[j-1][i+1] !=BLACK && (j-1>=0 && i+1<=14)){//우측 검사 - 우측이 있을 경우
+                            printf("\n 4-12 find connect 4 - j = %d , i = %d   ",j,i);
+                        }else if( j == 0 || i == 14){// 검사 필요 없음
+                            printf("\n 4-13 find connect 4 - j = %d , i = %d   ",j,i);
+                        }
+                    }
+                }
+            }
         }
     }
+     printf("\n **** ENd W4******");
 }
 
 bool Game::checkNon(std::array<std::array<int, 15>, 15> i_map)
