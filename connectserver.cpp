@@ -115,7 +115,8 @@ int ConnectServer::sendStone(uint8_t y, uint8_t x)
 bool ConnectServer::connectHost()
 {
     socket.connectToHost("127.0.0.1", 1234); // ip address, port
-
+    //socket.connectToHost("101.101.209.9", 1234); // ip address, port
+//101.101.209.9:1234
     if(!(socket.waitForConnected())){
         printf("connection fail");
         return false;
