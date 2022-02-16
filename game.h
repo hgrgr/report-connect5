@@ -37,7 +37,7 @@ public:
     //
     int miniMax(std::array<std::array<int,15>,15>& p_map,int depth, int al, int be, bool turn);
 
-    int calScore(std::array<std::array<int,15>,15>& p_map);// 보드 점수 계산
+    int calScore(std::array<std::array<int,15>,15>& p_map,int turn);// 보드 점수 계산
     int findSpotW(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy,int buf_size);
     int findSpotB(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy,int buf_size);
 

@@ -70,7 +70,7 @@ void Game::putStone(uint8_t y, uint8_t x)
                 }else{
                     find3(&i_map);
                     find4(&i_map);
-                    miniMax(i_map,1,1,1,turnToggle);
+                    //miniMax(i_map,1,1,1,turnToggle);
                     turnToggle = !(turnToggle);//toggle
                     if(turnToggle == BLACK)
                         ui->turn->setText(" 흑 ");
@@ -93,7 +93,7 @@ void Game::putStone(uint8_t y, uint8_t x)
                 }else{
                     find3(&i_map);
                     find4(&i_map);
-                    miniMax(i_map,1,1,1,turnToggle);
+                    //miniMax(i_map,1,1,1,turnToggle);
                     turnToggle = !(turnToggle);//toggle
                     if(turnToggle == BLACK)
                         ui->turn->setText(" 흑 ");
@@ -102,12 +102,11 @@ void Game::putStone(uint8_t y, uint8_t x)
                     if(mf->mode != OTO){
                         setMyTurn();
                     }
+                    setGui();
+                    miniMax(i_map,0,1,1,!turnToggle);
                 }
             }
         }
-
-
-
         setGui();
         //int findB4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
        /*
@@ -803,11 +802,11 @@ int Game::searchDia(std::array<std::array<int, 15>, 15> i_map, int num, bool col
 int Game::check5(std::array<std::array<int, 15>, 15> i_map, bool color)
 {
     if(searchWidth(i_map,5,color)){
-        return 1000000;
+        return 1;
     }else if(searchLength(i_map,5,color)){
-        return 1000000;
+        return 1;
     }else if(searchDia(i_map,5,color)){
-        return 1000000;
+        return 1;
     }
     return 0;
 }
@@ -828,9 +827,69 @@ int Game::check2(std::array<std::array<int, 15>, 15> i_map)
 
 }
 
-int Game::calScore(std::array<std::array<int, 15>, 15>& p_map)
+int Game::calScore(std::array<std::array<int, 15>, 15>& p_map,int turn)
 {
-
+    //findB4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    std::array<std::array<int,2>,10> buf_xy;
+    int sc = 0;
+    sc = rand() % 10;
+    int temp=0;
+    if(check5(p_map,!turn) == 1)//5개 완성한 경우 (턴은 상위 턴 기준으로 계산 해야한다)
+        return 900000;//0이 5개
+    if((!turn) == BLACK){//상위 턴이 블랙일경우 (뎁스 5기준 원래 턴과 동일)
+        //다음 턴이 화이트 이기 때뭉네 b4보다 w4우선시 되어야한다
+        if(findW4(p_map,buf_xy,1) >0 ){//white 4 가 존재시
+            return -900000;//최저값 - 이미 진 경우
+        }
+        if((temp = findB4(p_map,buf_xy,10)) > 0 ){//white4 없고 black 4는 존재할 경우
+            sc += 2000*temp;// 0이 4개
+        }
+        if((temp = findFW3(p_map,buf_xy,10)) > 0)//열린 white 3 존재시
+        {
+            sc -= 1000*temp;// 0이 3개
+        }
+        if((temp = findFB3(p_map,buf_xy,10)) >0 )//열린 black 존재시 -> 화이트가 막아야함
+        {
+            sc += 310*temp;
+         }
+        if((temp = findHW3(p_map,buf_xy,10) > 0)){// 닫힌 white 3 존재시
+            sc -= 150*temp;
+        }
+        if((temp = findHB3(p_map,buf_xy,10)) >0){// 닫힌 black 3 존재시
+           sc += 70*temp;
+        }
+        if((temp = findW2(p_map,buf_xy,10))>0){//열린 white2 존재시
+            sc -= 50*temp;
+        }
+        return sc;
+    }else if((!turn) == WHITE){//상위 턴이 화이트일 경우 (뎁스 5기준 원래 턴과 동일)
+        //다음 턴이 화이트 이기 때뭉네 b4보다 w4우선시 되어야한다
+        if(findB4(p_map,buf_xy,1) >0 ){//Black 4 가 존재시
+            return -900000;//최저값 - 이미 진 경우
+        }
+        if((temp = findW4(p_map,buf_xy,10)) > 0 ){//black4 없고 white 4는 존재할 경우
+            sc += 2000*temp;// 0이 4개
+        }
+        if((temp = findFB3(p_map,buf_xy,10)) > 0)//열린 Black 3 존재시
+        {
+            sc -= 1000*temp;// 0이 3개
+        }
+        if((temp = findFW3(p_map,buf_xy,10)) >0 )//열린 White 존재시 -> 블랙이 막아야함
+        {
+            sc += 310*temp;
+         }
+        if((temp = findHB3(p_map,buf_xy,10) > 0)){// 닫힌 BLack 3 존재시
+            sc -= 150*temp;
+        }
+        if((temp = findHW3(p_map,buf_xy,10)) >0){// 닫힌 White 3 존재시
+           sc += 70*temp;
+        }
+        if((temp = findB2(p_map,buf_xy,10))>0){//열린 Black2 존재시
+            sc -= 50*temp;
+        }
+        return sc;
+    }
+    return sc;
 }
 
 int Game::findSpotW(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
@@ -4718,8 +4777,9 @@ bool Game::checkNon(std::array<std::array<int, 15>, 15> i_map)
 
 int Game::miniMax(std::array<std::array<int, 15>, 15> &p_map, int depth, int al, int be, bool turn)
 {
-    if(depth == 5){//cal board
-        //int scor = calScore(p_map);
+    if(depth == 3){//cal board
+        int scor = calScore(p_map,turn);
+        /*
         printf("\n ********** Last map Start ************\n");
         for(int j=0;j < 15;j++){
             for(int i =0;i < 15;i++){
@@ -4728,7 +4788,8 @@ int Game::miniMax(std::array<std::array<int, 15>, 15> &p_map, int depth, int al,
             printf("\n");
         }
         printf("\n ********** Last map End************\n");
-        return 1;
+        */
+        return scor;
     }
     std::array<std::array<int, 15>, 15> my_b;
     std::array<std::array<int,2>,10> buf_xy;
@@ -4777,45 +4838,50 @@ int Game::miniMax(std::array<std::array<int, 15>, 15> &p_map, int depth, int al,
 //set_stone
     int temp =0;
     int backup =-1;
+    int t_y =-1;
+    int t_x =-1;
     //y = buf_xy[t].
     for(int t = 0; t < xy_size; t++){
         //my_b[buf_xy[t].first][buf_xy[t].second] = turn; // set Stone
-        if( depth % 2 == 0 && depth != 0){//pick max
-            int max_sc = -1000000 ;
+        if( depth % 2 == 0){//pick max
+            int max_sc = -9999999 ;
             for(int i=0; i < xy_size; i++){
                 backup = my_b[buf_xy[i][0]][buf_xy[i][1]];
                 my_b[buf_xy[i][0]][buf_xy[i][1]] = turn;
                 temp = miniMax(my_b,depth + 1,1,1,!turn);
-                my_b[buf_xy[i][0]][buf_xy[i][1]] = backup;
-                /*
-                if(max_sc < temp){
+                if( (temp = miniMax(my_b,depth+1,1,1,!turn)) > max_sc){//find bigger
                     max_sc = temp;
-                    //y = buf_xy[t].first;
-                    //x = buf_xy[t].second;
-                }*/
+                    t_y = buf_xy[i][0];
+                    t_x = buf_xy[i][1];
+                }
+                my_b[buf_xy[i][0]][buf_xy[i][1]] = backup;
             }
-            return max_sc;
+            if(depth !=0){
+                return max_sc;
+            }else {
+                putStone(t_y,t_x);
+                return true;
+            }
         }else{//pick min
-            int min_sc = 100000000;
+            int min_sc = 999999999;
             for(int i=0; i<xy_size; i++){
                 backup = my_b[buf_xy[i][0]][buf_xy[i][1]];
                 my_b[buf_xy[i][0]][buf_xy[i][1]] = turn;
                 temp = miniMax(my_b,depth + 1,1,1,!turn);
-                my_b[buf_xy[i][0]][buf_xy[i][1]] = backup;
-                /*
-                if(min_sc > temp){
+                if( (temp = miniMax(my_b,depth+1,1,1,!turn)) < min_sc){//find mini
                     min_sc = temp;
-                    //y = buf_xy[t].first;
-                    //x = buf_xy[t].second;
+                    t_y = buf_xy[i][0];
+                    t_x = buf_xy[i][1];
                 }
-                */
+                my_b[buf_xy[i][0]][buf_xy[i][1]] = backup;
+
             }
-            return min_sc;
+            if(depth !=0)
+                return min_sc;
+            else{
+                putStone(t_y,t_x);
+                return true;
+            }
         }
     }
-    if( depth == 0){
-        //put_stone(y,x);
-        return true;
-    }
-
 }
