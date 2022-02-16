@@ -58,58 +58,217 @@ void Game::putStone(uint8_t y, uint8_t x)
         }
         setGui();
     }else if(mf->remote == LOCAL){//local -- testing
-        if(turnToggle == WHITE){
-            if(i_map[y][x] == 1 || i_map[y][x] == 0){//already stone here
-                ui->Tstate->setText("already Stone here");
-            }else{
-                printf("\n check %d %d",x,y);
-                printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
-                updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
-                if(check5(i_map,turnToggle)){
-                    endGame();
+        if(mf->mode == OTO){//one to one
+            if(turnToggle == WHITE){
+                if(i_map[y][x] == 1 || i_map[y][x] == 0){//already stone here
+                    ui->Tstate->setText("already Stone here");
                 }else{
-                    find3(&i_map);
-                    find4(&i_map);
-                    //miniMax(i_map,1,1,1,turnToggle);
-                    turnToggle = !(turnToggle);//toggle
-                    if(turnToggle == BLACK)
-                        ui->turn->setText(" 흑 ");
-                    else if(turnToggle == WHITE)
-                        ui->turn->setText(" 백 ");
-                    if(mf->mode != OTO){
-                        setMyTurn();
+                    printf("\n check %d %d",x,y);
+                    printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
+                    updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
+                    if(check5(i_map,turnToggle)){
+                        endGame();
+                    }else{
+                        find3(&i_map);
+                        find4(&i_map);
+                        //miniMax(i_map,1,1,1,turnToggle);
+                        turnToggle = !(turnToggle);//toggle
+                        if(turnToggle == BLACK)
+                            ui->turn->setText(" 흑 ");
+                        else if(turnToggle == WHITE)
+                            ui->turn->setText(" 백 ");
+                        if(mf->mode != OTO){
+                            setMyTurn();
+                        }
+                    }
+                }
+            }else if(turnToggle == BLACK){
+                if(i_map[y][x] !=2){//already stone here
+                    ui->Tstate->setText("already Stone here");
+                }else{
+                    printf("\n check %d %d",x,y);
+                    printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
+                    updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
+                    if(check5(i_map,turnToggle)){
+                        endGame();
+                    }else{
+                        find3(&i_map);
+                        find4(&i_map);
+                        //miniMax(i_map,1,1,1,turnToggle);
+                        turnToggle = !(turnToggle);//toggle
+                        if(turnToggle == BLACK)
+                            ui->turn->setText(" 흑 ");
+                        else if(turnToggle == WHITE)
+                            ui->turn->setText(" 백 ");
+                        if(mf->mode != OTO){
+                            setMyTurn();
+                        }
+                        setGui();
+                        //miniMax(i_map,0,1,1,!turnToggle);
                     }
                 }
             }
-        }else if(turnToggle == BLACK){
-            if(i_map[y][x] !=2){//already stone here
-                ui->Tstate->setText("already Stone here");
-            }else{
-                printf("\n check %d %d",x,y);
-                printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
-                updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
-                if(check5(i_map,turnToggle)){
-                    endGame();
-                }else{
-                    find3(&i_map);
-                    find4(&i_map);
-                    //miniMax(i_map,1,1,1,turnToggle);
-                    turnToggle = !(turnToggle);//toggle
-                    if(turnToggle == BLACK)
-                        ui->turn->setText(" 흑 ");
-                    else if(turnToggle == WHITE)
-                        ui->turn->setText(" 백 ");
-                    if(mf->mode != OTO){
-                        setMyTurn();
+        }else if(mf->mode == OTA){
+            if(mf->turn == turnToggle){//myturn
+                if(turnToggle == WHITE){
+                    if(i_map[y][x] == 1 || i_map[y][x] == 0){//already stone here
+                        ui->Tstate->setText("already Stone here");
+                    }else{
+                        printf("\n check %d %d",x,y);
+                        printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
+                        updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
+                        if(check5(i_map,turnToggle)){
+                            endGame();
+                        }else{
+                            find3(&i_map);
+                            find4(&i_map);
+                            //miniMax(i_map,1,1,1,turnToggle);
+                            turnToggle = !(turnToggle);//toggle
+                            if(turnToggle == BLACK)
+                                ui->turn->setText(" 흑 ");
+                            else if(turnToggle == WHITE)
+                                ui->turn->setText(" 백 ");
+                            if(mf->mode != OTO){
+                                setMyTurn();
+                            }
+                            setGui();
+                            miniMax(i_map,0,1,1,!turnToggle);
+                        }
                     }
-                    setGui();
-                    miniMax(i_map,0,1,1,!turnToggle);
+                }else if(turnToggle == BLACK){
+                    if(i_map[y][x] !=2){//already stone here
+                        ui->Tstate->setText("already Stone here");
+                    }else{
+                        printf("\n check %d %d",x,y);
+                        printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
+                        updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
+                        if(check5(i_map,turnToggle)){
+                            endGame();
+                        }else{
+                            find3(&i_map);
+                            find4(&i_map);
+                            //miniMax(i_map,1,1,1,turnToggle);
+                            turnToggle = !(turnToggle);//toggle
+                            if(turnToggle == BLACK)
+                                ui->turn->setText(" 흑 ");
+                            else if(turnToggle == WHITE)
+                                ui->turn->setText(" 백 ");
+                            if(mf->mode != OTO){
+                                setMyTurn();
+                            }
+                            setGui();
+                            miniMax(i_map,0,1,1,!turnToggle);
+                        }
+                    }
+                }
+            }else{
+                if(turnToggle == WHITE){
+                    if(i_map[y][x] == 1 || i_map[y][x] == 0){//already stone here
+                        ui->Tstate->setText("already Stone here");
+                    }else{
+                        printf("\n check %d %d",x,y);
+                        printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
+                        updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
+                        if(check5(i_map,turnToggle)){
+                            endGame();
+                        }else{
+                            find3(&i_map);
+                            find4(&i_map);
+                            //miniMax(i_map,1,1,1,turnToggle);
+                            turnToggle = !(turnToggle);//toggle
+                            if(turnToggle == BLACK)
+                                ui->turn->setText(" 흑 ");
+                            else if(turnToggle == WHITE)
+                                ui->turn->setText(" 백 ");
+                            if(mf->mode != OTO){
+                                setMyTurn();
+                            }
+                            setGui();
+                            //miniMax(i_map,0,1,1,!turnToggle);
+                        }
+                    }
+                }else if(turnToggle == BLACK){
+                    if(i_map[y][x] !=2){//already stone here
+                        ui->Tstate->setText("already Stone here");
+                    }else{
+                        printf("\n check %d %d",x,y);
+                        printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
+                        updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
+                        if(check5(i_map,turnToggle)){
+                            endGame();
+                        }else{
+                            find3(&i_map);
+                            find4(&i_map);
+                            //miniMax(i_map,1,1,1,turnToggle);
+                            turnToggle = !(turnToggle);//toggle
+                            if(turnToggle == BLACK)
+                                ui->turn->setText(" 흑 ");
+                            else if(turnToggle == WHITE)
+                                ui->turn->setText(" 백 ");
+                            if(mf->mode != OTO){
+                                setMyTurn();
+                            }
+                            setGui();
+                            //miniMax(i_map,0,1,1,!turnToggle);
+                        }
+                    }
+                }
+
+            }
+        }else if(mf->mode == ATA){
+            if(turnToggle == WHITE){
+                if(i_map[y][x] == 1 || i_map[y][x] == 0){//already stone here
+                    ui->Tstate->setText("already Stone here");
+                }else{
+                    printf("\n check %d %d",x,y);
+                    printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
+                    updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
+                    if(check5(i_map,turnToggle)){
+                        endGame();
+                    }else{
+                        find3(&i_map);
+                        find4(&i_map);
+                        //miniMax(i_map,1,1,1,turnToggle);
+                        turnToggle = !(turnToggle);//toggle
+                        if(turnToggle == BLACK)
+                            ui->turn->setText(" 흑 ");
+                        else if(turnToggle == WHITE)
+                            ui->turn->setText(" 백 ");
+                        if(mf->mode != OTO){
+                            setMyTurn();
+                        }
+                        miniMax(i_map,0,1,1,!turnToggle);
+                    }
+                }
+            }else if(turnToggle == BLACK){
+                if(i_map[y][x] !=2){//already stone here
+                    ui->Tstate->setText("already Stone here");
+                }else{
+                    printf("\n check %d %d",x,y);
+                    printf("\n check %d %d",(((x+1)<<4)&XMASK),((y&YMASK) + 1));
+                    updateBoard( (((x+1)<<4)&XMASK) | ((y&YMASK) + 1) );
+                    if(check5(i_map,turnToggle)){
+                        endGame();
+                    }else{
+                        find3(&i_map);
+                        find4(&i_map);
+                        //miniMax(i_map,1,1,1,turnToggle);
+                        turnToggle = !(turnToggle);//toggle
+                        if(turnToggle == BLACK)
+                            ui->turn->setText(" 흑 ");
+                        else if(turnToggle == WHITE)
+                            ui->turn->setText(" 백 ");
+                        if(mf->mode != OTO){
+                            setMyTurn();
+                        }
+                        miniMax(i_map,0,1,1,!turnToggle);
+                    }
                 }
             }
         }
+
         setGui();
-        //int findB4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
-       /*
+/*
         std::array<std::array<int,2>,10> temp;
         findB4(i_map,temp,1);
         findW4(i_map,temp,1);
@@ -119,9 +278,9 @@ void Game::putStone(uint8_t y, uint8_t x)
         findHW3(i_map,temp,1);
         findB2(i_map,temp,1);
         findW2(i_map,temp,1);
-        findB1(i_map,temp,1);
-        findW1(i_map,temp,1);
-        */
+        //findB1(i_map,temp,1);
+        //findW1(i_map,temp,1);
+*/
     }
 
 }
@@ -139,6 +298,7 @@ void Game::gameStart(int turn)
             }else if(mf->mode == AI){//AI
                 //minimax();or put(7-7);
                 //recv(update)-wait;
+                putStone(7,7);
             }
         }else if (turn == WHITE){
             if(mf->mode == ME){//me
@@ -835,7 +995,7 @@ int Game::calScore(std::array<std::array<int, 15>, 15>& p_map,int turn)
     sc = rand() % 10;
     int temp=0;
     if(check5(p_map,!turn) == 1)//5개 완성한 경우 (턴은 상위 턴 기준으로 계산 해야한다)
-        return 900000;//0이 5개
+        return 99999999;//0이 5개
     if((!turn) == BLACK){//상위 턴이 블랙일경우 (뎁스 5기준 원래 턴과 동일)
         //다음 턴이 화이트 이기 때뭉네 b4보다 w4우선시 되어야한다
         if(findW4(p_map,buf_xy,1) >0 ){//white 4 가 존재시

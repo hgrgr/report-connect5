@@ -56,6 +56,12 @@ int ConnectServer::recvUpdateEnd()//recv update packet and update GUI,
         game->find3(&game->i_map);
         game->find4(&game->i_map);
         game->setGui();
+        if(mf->mode == AI && mf->turn == game->turnToggle){//my turn
+            game->miniMax(game->i_map,0,1,1,!(game->turnToggle));
+            return true;
+        }else if( mf->mode == AI && mf->turn == game->turnToggle){//not my turn
+            return true;
+        }
         return true;
     }else if(recv_b[0] == 4 && size != -1){//recv End packet
         printf("- ENd packet %d %d %d ", recv_b[0],recv_b[1],recv_b[2]);
