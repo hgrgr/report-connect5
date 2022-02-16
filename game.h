@@ -42,16 +42,25 @@ public:
     int findSpotB(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy,int buf_size);
 
     int findB4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findB44(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 15>, 15>& bit_map);
     int findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findW44(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
 
     int findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int wfindFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 15>, 15>& bit_map);
     int findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int wfindFW3(std::array<std::array<int,15>,15>& p_map,  std::array<std::array<int, 15>, 15>& bit_map);
 
     int findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int wfindHB3(std::array<std::array<int,15>,15>& p_map,std::array<std::array<int, 15>, 15>& bit_map);
     int findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findHW3(std::array<std::array<int,15>,15>& p_map,std::array<std::array<int, 15>, 15>& bit_map);
 
     int findB2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int wfindB2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 15>, 15>& bit_map);
+
     int findW2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int wfindW2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 15>, 15>& bit_map);
 
     int findB1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, std::array<std::array<int,15>,15>& bit_map,int buf_size);
     int findW1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, std::array<std::array<int,15>,15>& bit_map,int buf_size);
