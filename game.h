@@ -53,9 +53,10 @@ public:
     int findB2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
     int findW2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
 
-    int findB1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
-    int findW1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+    int findB1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, std::array<std::array<int,15>,15>& bit_map,int buf_size);
+    int findW1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, std::array<std::array<int,15>,15>& bit_map,int buf_size);
     //
+    void testpair(std::array<std::array<int,2>,10>& buf_xy);
 };
 
 #endif // GAME_H

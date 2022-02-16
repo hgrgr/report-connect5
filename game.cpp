@@ -70,6 +70,7 @@ void Game::putStone(uint8_t y, uint8_t x)
                 }else{
                     find3(&i_map);
                     find4(&i_map);
+                    miniMax(i_map,1,1,1,turnToggle);
                     turnToggle = !(turnToggle);//toggle
                     if(turnToggle == BLACK)
                         ui->turn->setText(" 흑 ");
@@ -92,6 +93,7 @@ void Game::putStone(uint8_t y, uint8_t x)
                 }else{
                     find3(&i_map);
                     find4(&i_map);
+                    miniMax(i_map,1,1,1,turnToggle);
                     turnToggle = !(turnToggle);//toggle
                     if(turnToggle == BLACK)
                         ui->turn->setText(" 흑 ");
@@ -107,8 +109,8 @@ void Game::putStone(uint8_t y, uint8_t x)
 
 
         setGui();
-        //miniMax(i_map,1,1,1,1);
         //int findB4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int,2>,10>& buf_xy, int buf_size);
+       /*
         std::array<std::array<int,2>,10> temp;
         findB4(i_map,temp,1);
         findW4(i_map,temp,1);
@@ -116,6 +118,11 @@ void Game::putStone(uint8_t y, uint8_t x)
         findFW3(i_map,temp,1);
         findHB3(i_map,temp,1);
         findHW3(i_map,temp,1);
+        findB2(i_map,temp,1);
+        findW2(i_map,temp,1);
+        findB1(i_map,temp,1);
+        findW1(i_map,temp,1);
+        */
     }
 
 }
@@ -828,40 +835,186 @@ int Game::calScore(std::array<std::array<int, 15>, 15>& p_map)
 
 int Game::findSpotW(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
 {
+    std::array<std::array<int,15>,15> bit_map;
+    for(int i=0;i<15;i++){//init bit_map;
+        for(int j=0; j <15;j++){
+            bit_map[i][j]=0;
+        }
+    }
     int m_size = 0;
-    m_size += findW4(p_map, buf_xy, buf_size);
-    m_size += findB4(p_map, buf_xy, buf_size - m_size);
+    m_size += findW4(p_map, buf_xy, buf_size);//무조권 놓아야함
 
-    m_size += findFW3(p_map, buf_xy, buf_size - m_size);
-    m_size += findFB3(p_map, buf_xy, buf_size - m_size);
+    if(m_size < buf_size){
+        m_size += findB4(p_map, buf_xy, buf_size - m_size);//무조권 놓아야함
+    }
+    if(m_size < buf_size){
+        m_size += findFW3(p_map, buf_xy, buf_size - m_size);//최선의 수 계산 필요 // 44 - 43 가능 수 최우선으로 찾아야함
+    }
+    if(m_size < buf_size){
+        m_size += findFB3(p_map, buf_xy, buf_size - m_size);//최선의 수 계산 필요//43 가능수 방어 필요
+    }
+    if(m_size < buf_size){
+        m_size += findHW3(p_map, buf_xy, buf_size - m_size);//최선의 수 계산 필요 // 막힌 43, 44 최우선으로 찾아야함
+    }
+    if(m_size < buf_size){
+        m_size += findHB3(p_map, buf_xy, buf_size - m_size);//수 계산 필요 - 막힌 43, 띄엄 44 공격수 찾아야함
+    }
+    if(m_size < buf_size){
+        m_size += findW2(p_map, buf_xy, buf_size - m_size);//수 계산 필요 - 33 최우선으로 찾아야함
+    }
+    if(m_size < buf_size){
+        m_size += findB2(p_map, buf_xy, buf_size - m_size);//수 계산 필요 띄엄 띄엄 33 최우선 방어 필요
+    }
+    if(m_size < buf_size){
+        findW1(p_map, buf_xy,bit_map, buf_size - m_size);
+        printf("find b1 m_size = %d \n",m_size);
+        for(int i=m_size; i<buf_size;i++){
+            int max_num = 0;
+            int t_x =0;
+            int t_y =0;
+            for(int k=0;k<15;k++){//bit map scane
+                for(int t=0; t<15;t++){
+                    if(bit_map[k][t] > max_num){
+                        max_num = bit_map[k][t];
+                        t_y = k;
+                        t_x = t;
+                    }
+                }
+            }
+            if(max_num == 0)
+                break;
+            buf_xy[i][0] = t_y;
+            buf_xy[i][1] = t_x;
+            bit_map[t_y][t_x] = 0;//없애준다.
+            max_num = 0;
+            printf("\n m_size *=* %d", m_size++);
+
+        }
+    }
+    if(m_size < buf_size){
+        findB1(p_map, buf_xy,bit_map, buf_size - m_size);
+        printf("find b1 m_size = %d \n",m_size);
+        for(int i=m_size; i<buf_size;i++){
+            int max_num = 0;
+            int t_x =0;
+            int t_y =0;
+            for(int k=0;k<15;k++){//bit map scane
+                for(int t=0; t<15;t++){
+                    if(bit_map[k][t] > max_num){
+                        max_num = bit_map[k][t];
+                        t_y = k;
+                        t_x = t;
+                    }
+                }
+            }
+            if(max_num == 0)
+                break;
+            buf_xy[i][0] = t_y;
+            buf_xy[i][1] = t_x;
+            bit_map[t_y][t_x] = 0;//없애준다.
+            max_num = 0;
+            printf("\n m_size *=* %d", m_size++);
+
+        }
+    }
     //
-    m_size += findHW3(p_map, buf_xy, buf_size - m_size);
-    m_size += findHB3(p_map, buf_xy, buf_size - m_size);
-
-    m_size += findW2(p_map, buf_xy, buf_size - m_size);
-    m_size += findB2(p_map, buf_xy, buf_size - m_size);
-
-    m_size += findB1(p_map, buf_xy, buf_size - m_size);
 
     return m_size;
 }
 
 int Game::findSpotB(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
 {
+    std::array<std::array<int,15>,15> bit_map;
+
+    for(int i=0;i<15;i++){//init bit_map;
+        for(int j=0; j <15;j++){
+            bit_map[i][j]=0;
+        }
+    }
     int m_size = 0;
-    m_size += findB4(p_map, buf_xy, buf_size);
-    m_size += findW4(p_map, buf_xy, buf_size - m_size);
-    m_size += findFB3(p_map, buf_xy, buf_size - m_size);
-    m_size += findFW3(p_map, buf_xy, buf_size - m_size);
+    m_size += findB4(p_map, buf_xy, buf_size);//buf_size = 10 - 무조건 막아야함
+    printf("m_size = %d \n",m_size);
+    if(m_size < buf_size){
+        m_size += findW4(p_map, buf_xy, buf_size - m_size);//무조건 막아야함
+        printf("m_size = %d \n",m_size);
+    }
+    if(m_size < buf_size){
+        m_size += findFB3(p_map, buf_xy, buf_size - m_size);//띄엄 44,34 공격 찾는게 최우선
+        printf("m_size = %d \n",m_size);
+    }
+    if(m_size < buf_size){
+        m_size += findFW3(p_map, buf_xy, buf_size - m_size);
+        printf("m_size = %d \n",m_size);
+    }
+    if(m_size < buf_size){
+        m_size += findHB3(p_map, buf_xy, buf_size - m_size);
+        printf("m_size = %d \n",m_size);
+    }
+    if(m_size < buf_size){
+        m_size += findHW3(p_map, buf_xy, buf_size - m_size);
+        printf("m_size = %d \n",m_size);
+    }
+    if(m_size < buf_size){
+        m_size += findB2(p_map, buf_xy, buf_size - m_size);
+        printf("m_size = %d \n",m_size);
+    }
+    if(m_size < buf_size){
+        m_size += findW2(p_map, buf_xy, buf_size - m_size);
+        printf("m_size = %d \n",m_size);
+    }
+    if(m_size < buf_size){
+        findB1(p_map, buf_xy,bit_map, buf_size - m_size);
+        printf("find b1 m_size = %d \n",m_size);
+        for(int i=m_size; i<buf_size;i++){
+            int max_num = 0;
+            int t_x =0;
+            int t_y =0;
+            for(int k=0;k<15;k++){//bit map scane
+                for(int t=0; t<15;t++){
+                    if(bit_map[k][t] > max_num){
+                        max_num = bit_map[k][t];
+                        t_y = k;
+                        t_x = t;
+                    }
+                }
+            }
+            if(max_num == 0)
+                break;
+            buf_xy[i][0] = t_y;
+            buf_xy[i][1] = t_x;
+            bit_map[t_y][t_x] = 0;//없애준다.
+            max_num = 0;
+            printf("\n m_size *=* %d", m_size++);
+
+        }
+    }
+    if(m_size < buf_size){
+        findW1(p_map, buf_xy,bit_map, buf_size - m_size);
+        printf("find b1 m_size = %d \n",m_size);
+        for(int i=m_size; i<buf_size;i++){
+            int max_num = 0;
+            int t_x =0;
+            int t_y =0;
+            for(int k=0;k<15;k++){//bit map scane
+                for(int t=0; t<15;t++){
+                    if(bit_map[k][t] > max_num){
+                        max_num = bit_map[k][t];
+                        t_y = k;
+                        t_x = t;
+                    }
+                }
+            }
+            if(max_num == 0)
+                break;
+            buf_xy[i][0] = t_y;
+            buf_xy[i][1] = t_x;
+            bit_map[t_y][t_x] = 0;//없애준다.
+            max_num = 0;
+            printf("\n m_size *=* %d", m_size++);
+
+        }
+    }
     //
-    m_size += findHB3(p_map, buf_xy, buf_size - m_size);
-    m_size += findHW3(p_map, buf_xy, buf_size - m_size);
-
-    m_size += findB2(p_map, buf_xy, buf_size - m_size);
-    m_size += findW2(p_map, buf_xy, buf_size - m_size);
-
-    m_size += findB1(p_map, buf_xy, buf_size - m_size);
-
     return m_size;
 }
 
@@ -870,6 +1023,8 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
     printf("\n **** find B4******");
     int p = 0;
     int b = 0;
+    int buf_p = 10 - buf_size;
+    int find_num =0;
     for(int j = 0; j < 15; j++){
         for(int i =0; i < 15; i++){
             if(p_map[j][i] == PAN){//only PAN
@@ -878,9 +1033,21 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                         if( p_map[j][i-1]  != BLACK && i-1>=0) // 좌측 검사
                         {
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                         else if( i == 0) //
                         {   //push(j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                             printf("\n 1-2 find connect 4 - j = %d , i = %d   ",j,i);
                         }
                     }
@@ -889,10 +1056,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK && p_map[j][i+3] == BLACK){
                         if( p_map[j][i-2] != BLACK && p_map[j][i+4] != BLACK && (i-2 >=0 && i+4 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i-2] != BLACK && i+3 == 14){//좌측 체크 (우측은 이미 끝에 도달)
                             printf("\n 1-4 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i+4] != BLACK && i -1 == 0 ){//우측 체크
                             printf("\n 1-5 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -900,10 +1085,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK ){
                         if( p_map[j][i-3] != BLACK && p_map[j][i+3] != BLACK && i+3 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i+3] != BLACK && i - 2 == 0){//좌측에 붙어있음 -> 우측만 검사
                             printf("\n 1-7 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i-3] != BLACK && i + 2 == 14){//우측에 붙어 있음 -> 좌측만 검사
                             printf("\n 1-8 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -911,10 +1114,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j][i-3] == BLACK && p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK){
                         if( p_map[j][i+2] != BLACK && p_map[j][i-4] != BLACK && i+2 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if ( p_map[j][i+2] !=BLACK && i -3 == 0){//좌측에 붙음 -> 우측만 검사
                             printf("\n 1-10 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i-4] != BLACK && i+1 == 14){//우측에 붙음 -> 좌측만 검사
                             printf("\n 1-11 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -922,8 +1143,20 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j][i-4] == BLACK && p_map[j][i-3] == BLACK && p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK){
                         if(i == 14){//이미 끝에 도달 - 검사할것 없음(원래는 우측 검사)
                             printf("\n 1-12 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i+1] != BLACK && i != 14){//우측 검사
                             printf("\n 1-13 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -933,10 +1166,22 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                         if( p_map[j-1][i]  != BLACK && j-1>=0)//상단 검사 할거리 있을 경우
                         {
                             printf("\n 2-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                         else if( j== 0)//상단에 붙어있음 - 검사 할거리 없음
                         {   //push(j,i);
                             printf("\n 2-2 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -944,10 +1189,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK && p_map[j+3][i] == BLACK){
                         if( p_map[j-2][i] != BLACK && p_map[j+4][i] != BLACK && (j-2 >=0 && j+4 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                             printf("\n 2-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-2][i] != BLACK && j+3 == 14){//상단 체크 (하단은 이미 끝에 도달)
                             printf("\n 2-4 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+4][i] != BLACK && j -1 == 0 ){//하단 체크 - 상단은 이미 상단에 도달
                             printf("\n 2-5 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -955,10 +1218,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK ){
                         if( p_map[j-3][i] != BLACK && p_map[j+3][i] != BLACK && j+3 <= 14 && j-3 >= 0){
                             printf("\n 2-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+3][i] != BLACK && j - 2 == 0){//상단에 붙어 있을 경우 -> 하단만 검사
                             printf("\n 2-7 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-3][i] != BLACK && j + 2 == 14){//하단에 붙어 있을경우 -> 상단만 검사
                             printf("\n 2-8 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -966,10 +1247,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK){
                         if( p_map[j+2][i] != BLACK && p_map[j-4][i] != BLACK && j+2 <= 14 && j-4 >= 0){
                             printf("\n 2-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if ( p_map[j+2][i] !=BLACK && j -3 == 0){//상단에 붙음 - 하단만 검사
                             printf("\n 2-10 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-4][i] != BLACK && j+1 == 14){//하단에 붙음 - 상단만 검사
                             printf("\n 2-11 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -977,8 +1276,20 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-4][i] == BLACK && p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK){
                         if(j == 14){//이미 끝에 도달 - 굳이 상단 검사할 필요없음 - 5개여서
                             printf("\n 2-12 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+1][i] != BLACK && j != 14){//하단 검사
                             printf("\n 2-13 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -988,10 +1299,22 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                         if( p_map[j-1][i-1] != BLACK && j-1>=0 && i-1>=0)//우측에 있으면 이미 5개임 -> 검사할 필요 없음 - 좌측만 돌 없으면 4
                         {
                             printf("\n 3-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                         else if( i == 0 || j== 0)//좌측에 달라 붙어 있을경우 - 검사 필요 없음
                         {   //push(j,i);
                             printf("\n 3-2 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -999,10 +1322,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK && p_map[j+3][i+3] == BLACK){
                         if( p_map[j-2][i-2] != BLACK && p_map[j+4][i+4] != BLACK && (i-2 >=0 && i+4 <= 14) && (j-2 >=0 && j+4 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
                             printf("\n 3-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-2][i-2] != BLACK && (i+3 == 14 || j+3 == 14)){//좌측 체크 (우측은 이미 끝에 도달)
                             printf("\n 3-4 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+4][i+4] != BLACK && (i -1 == 0  || j -1 == 0) ){//우측 체크
                             printf("\n 3-5 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1010,10 +1351,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK ){
                         if( p_map[j-3][i-3] != BLACK && p_map[j+3][i+3] != BLACK && i+3 <= 14 && i-3 >= 0 && j+3 <= 14 && j-3 >= 0){
                             printf("\n 3-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+3][i+3] != BLACK && (i - 2 == 0 || j - 2 == 0)){
                             printf("\n 3-7 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-3][i-3] != BLACK && (i + 2 == 14 || j + 2 == 14)){
                             printf("\n 3-8 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1021,10 +1380,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-3][i-3] == BLACK && p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK){
                         if( p_map[j+2][i+2] != BLACK && p_map[j-4][i-4] != BLACK && i+2 <= 14 && i-4 >= 0 && j+2 <= 14 && j-4 >= 0){
                             printf("\n 3-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if ( p_map[j+2][i+2] !=BLACK && (i -3 == 0 || j -3 == 0)){
                             printf("\n 3-10 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-4][i-4] != BLACK && (i+1 == 14 || j+1 == 14)){
                             printf("\n 3-11 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1032,8 +1409,20 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j-4][i-4] == BLACK && p_map[j-3][i-3] == BLACK && p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK){
                         if( i == 14 || j == 14){//이미 끝에 도달 -- 좌측 검사할 필요 없음(5개니까) - 우측 검사할 칸 없음
                             printf("\n 3-12 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+1][i+1] != BLACK && i != 14 && j != 14){
                             printf("\n 3-13 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1043,10 +1432,22 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                         if( p_map[j+1][i-1]  != BLACK && j+1<=14 && i-1>=0) // 좌측 검사 - 좌측이 있을 경우
                         {
                             printf("\n 4-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                         else if( j == 14 || i == 0)//ㄴ 라인
                         {   //push(j,i);
                             printf("\n 4-2 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1055,10 +1456,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                         if( p_map[j+2][i-2] != BLACK && p_map[j-4][i+4] != BLACK &&
                                 (i-2 >=0 && i+4 <= 14) && (j-4 >=0 && j+2 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
                             printf("\n 4-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+2][i-2] != BLACK  && (i+3 == 14 || j-3 == 0)){//좌측 체크 (우측은 이미 끝에 도달) ㄱ 형태
                             printf("\n 4-4 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-4][i+4] != BLACK && (j + 1 == 14 || i -1 == 0 )){//우측 체크 ㄴ 형태
                             printf("\n 4-5 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1067,10 +1486,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                         if( p_map[j+3][i-3] != BLACK && p_map[j-3][i+3] != BLACK &&
                                 (i-3 >=0 && i+3 <=14 ) && (j-3 >=0 && j+3 <= 14)){
                             printf("\n 4-6find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+3][i-3] != BLACK && ( j == 2 || i == 12)){//하단 검사
                             printf("\n 4-7 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-3][i+3] != BLACK && ( j == 12 || i == 2)){//상단 검사
                             printf("\n 4-8 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1079,10 +1516,28 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                         if( p_map[j+4][i-4] != BLACK && p_map[j-2][i+2] != BLACK &&
                                 (j+4 <= 14 && i-4>=0) && (j-2 >=0 && i+2 <= 14)){// 2<=j<= 10   4<=i<=12
                             printf("\n 4-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if ( p_map[j+4][i-4] !=BLACK && (j == 1 || i == 13)){
                             printf("\n 4-10 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-2][i+2] != BLACK && (j == 11 || i == 3)){
                             printf("\n 4-11 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1090,8 +1545,20 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
                     if(p_map[j+4][i-4] == BLACK && p_map[j+3][i-3] == BLACK && p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK){
                         if(p_map[j-1][i+1] !=BLACK && (j-1>=0 && i+1<=14)){//우측 검사 - 우측이 있을 경우
                             printf("\n 4-12 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( j == 0 || i == 14){// 검사 필요 없음
                             printf("\n 4-13 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1099,6 +1566,7 @@ int Game::findB4(std::array<std::array<int,15>,15>& p_map,std::array<std::array<
         }
     }
      printf("\n **** ENd B4******");
+     return find_num;
 }
 int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)//양쪽 뚫린 3 - will make 4
 {
@@ -1109,6 +1577,8 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
      */
      int p = 0;
      int b = 0;
+     int buf_p = 10 - buf_size;
+     int find_num =0;
      for(int j = 0; j < 15; j++){
          for(int i =0; i < 15; i++){
              if(p_map[j][i] == PAN){//only PAN - Black cannot put NON
@@ -1117,6 +1587,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                          if( p_map[j][i-1] == PAN && p_map[j][i+4] == PAN && i+4 <= 14 && i-1>=0) // 좌 우측 검사
                          {
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1124,6 +1600,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK){
                          if( p_map[j][i-2] == PAN && p_map[j][i+3] == PAN && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                              printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1131,6 +1613,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK){
                          if( p_map[j][i-3] == PAN && p_map[j][i+2] == PAN && i+2 <= 14 && i-3 >= 0){
                              printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1138,6 +1626,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j][i-3] == BLACK && p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK){
                          if( p_map[j][i-4] == PAN && p_map[j][i+1] == PAN && i+1 <= 14 && i-4 >= 0){
                              printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1147,6 +1641,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                          if( p_map[j-1][i] == PAN && p_map[j+4][i] == PAN && j+4 <= 14 && j-1>=0) // 좌 우측 검사
                          {
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1154,6 +1654,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK){
                          if( p_map[j-2][i] == PAN && p_map[j+3][i] == PAN && (j-2 >=0 && j+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                              printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1161,6 +1667,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK){
                          if( p_map[j-3][i] == PAN && p_map[j+2][i] == PAN && j+2 <= 14 && j-3 >= 0){
                              printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1168,6 +1680,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK){
                          if( p_map[j-4][i] == PAN && p_map[j+1][i] == PAN && j+1 <= 14 && j-4 >= 0){
                              printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1177,6 +1695,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                          if( p_map[j-1][i-1] == PAN && p_map[j+4][i+4] == PAN && j+4 <= 14 && j-1>=0 && i+4 <= 14 && i-1>=0) // 좌 우측 검사
                          {
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1184,6 +1708,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK){
                          if( p_map[j-2][i-2] == PAN && p_map[j+3][i+3] == PAN && (j-2 >=0 && j+3 <= 14) && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                              printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1191,6 +1721,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK){
                          if( p_map[j-3][i-3] == PAN && p_map[j+2][i+2] == PAN && j+2 <= 14 && j-3 >= 0 && i+2 <= 14 && i-3 >= 0){
                              printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1198,6 +1734,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-3][i-3] == BLACK && p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK){
                          if( p_map[j-4][i-4] == PAN && p_map[j+1][i+1] == PAN && j+1 <= 14 && j-4 >= 0 && i+1 <= 14 && i-4 >= 0){
                              printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1208,6 +1750,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                          if( p_map[j+1][i-1] == PAN && p_map[j-4][i+4] == PAN && (j+1<=14 && j-4>=0) && (i+4<=14 && i-1>=0)) // 좌 우측 검사
                          {
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1215,6 +1763,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK){
                          if( p_map[j+2][i-2] == PAN && p_map[j-3][i+3] == PAN && (j-3 >=0 && j+2 <= 14) && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                              printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1222,6 +1776,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK){
                          if( p_map[j+3][i-3] == PAN && p_map[j-2][i+2] == PAN && j+3 <= 14 && j-2 >= 0 && i+2 <= 14 && i-3 >= 0){
                              printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1229,6 +1789,12 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j+3][i-3] == BLACK && p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK){
                          if( p_map[j+4][i-4] == PAN && p_map[j-1][i+1] == PAN && j+4 <= 14 && j-1 >= 0 && i+1 <= 14 && i-4 >= 0){
                              printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1237,6 +1803,7 @@ int Game::findFB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
          }
      }
       printf("\n **** ENd Full B3******");
+      return find_num;
 
 }
 int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
@@ -1248,6 +1815,8 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
      */
      int p = 0;
      int b = 0;
+     int buf_p = 10 - buf_size;
+     int find_num = 0;
      for(int j = 0; j < 15; j++){
          for(int i =0; i < 15; i++){
              if(p_map[j][i] == PAN || p_map[j][i] == NON){//only PAN, NON - White can put NON
@@ -1256,6 +1825,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                          if( p_map[j][i-1] == PAN && p_map[j][i+4] == PAN && i+4 <= 14 && i-1>=0) // 좌 우측 검사
                          {
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1263,6 +1838,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j][i-1] == WHITE && p_map[j][i+1] == WHITE && p_map[j][i+2] == WHITE){
                          if( p_map[j][i-2] == PAN && p_map[j][i+3] == PAN && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                              printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1270,6 +1851,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j][i-2] == WHITE && p_map[j][i-1] == WHITE && p_map[j][i+1] == WHITE){
                          if( p_map[j][i-3] == PAN && p_map[j][i+2] == PAN && i+2 <= 14 && i-3 >= 0){
                              printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1277,6 +1864,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j][i-3] == WHITE && p_map[j][i-2] == WHITE && p_map[j][i-1] == WHITE){
                          if( p_map[j][i-4] == PAN && p_map[j][i+1] == PAN && i+1 <= 14 && i-4 >= 0){
                              printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1286,6 +1879,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                          if( (p_map[j-1][i] == PAN || p_map[j-1][i] == NON) && (p_map[j+4][i] == PAN || p_map[j+4][i] == NON) && j+4 <= 14 && j-1>=0) // 좌 우측 검사
                          {
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1293,6 +1892,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-1][i] == WHITE && p_map[j+1][i] == WHITE && p_map[j+2][i] == WHITE){
                          if( ( p_map[j-2][i] == NON || p_map[j-2][i] == PAN) && (p_map[j+3][i] == PAN || p_map[j+3][i] == NON) && (j-2 >=0 && j+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                              printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1300,6 +1905,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-2][i] == WHITE && p_map[j-1][i] == WHITE && p_map[j+1][i] == WHITE){
                          if( (p_map[j-3][i] == PAN || p_map[j-3][i] == NON) && (  p_map[j+2][i] == NON ||p_map[j+2][i] == PAN) && j+2 <= 14 && j-3 >= 0){
                              printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1307,6 +1918,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-3][i] == WHITE && p_map[j-2][i] == WHITE && p_map[j-1][i] == WHITE){
                          if( (p_map[j-4][i] == PAN || p_map[j-4][i] == NON) && (p_map[j+1][i] == PAN || p_map[j+1][i] == NON)&& j+1 <= 14 && j-4 >= 0){
                              printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1316,6 +1933,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                          if( (p_map[j-1][i-1] == PAN || p_map[j-1][i-1] == NON) && (p_map[j+4][i+4] == PAN || p_map[j+4][i+4] == NON) && j+4 <= 14 && j-1>=0 && i+4 <= 14 && i-1>=0) // 좌 우측 검사
                          {
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1323,6 +1946,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-1][i-1] == WHITE && p_map[j+1][i+1] == WHITE && p_map[j+2][i+2] == WHITE){
                          if( (p_map[j-2][i-2] == PAN || p_map[j-2][i-2] == NON) && (p_map[j+3][i+3] == PAN || p_map[j+3][i+3] == NON) && (j-2 >=0 && j+3 <= 14) && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                              printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1330,6 +1959,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-2][i-2] == WHITE && p_map[j-1][i-1] == WHITE && p_map[j+1][i+1] == WHITE){
                          if( (p_map[j-3][i-3] == PAN || p_map[j-3][i-3] == NON) && (p_map[j+2][i+2] == PAN || p_map[j+2][i+2] == NON) && j+2 <= 14 && j-3 >= 0 && i+2 <= 14 && i-3 >= 0){
                              printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1337,6 +1972,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j-3][i-3] == WHITE && p_map[j-2][i-2] == WHITE && p_map[j-1][i-1] == WHITE){
                          if( (p_map[j-4][i-4] == PAN || p_map[j-4][i-4] == NON) && (p_map[j+1][i+1] == PAN || p_map[j+1][i+1] == NON) && j+1 <= 14 && j-4 >= 0 && i+1 <= 14 && i-4 >= 0){
                              printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1347,6 +1988,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                          if( (p_map[j+1][i-1] == PAN || p_map[j+1][i-1] == NON) && (p_map[j-4][i+4] == PAN || p_map[j-4][i+4] == NON) && (j+1<=14 && j-4>=0) && (i+4<=14 && i-1>=0)) // 좌 우측 검사
                          {
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1354,6 +2001,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j+1][i-1] == WHITE && p_map[j-1][i+1] == WHITE && p_map[j-2][i+2] == WHITE){
                          if( (p_map[j+2][i-2] == PAN || p_map[j+2][i-2] == NON) && (p_map[j-3][i+3] == PAN || p_map[j-3][i+3] == NON) && (j-3 >=0 && j+2 <= 14) && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                              printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1361,6 +2014,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j+2][i-2] == WHITE && p_map[j+1][i-1] == WHITE && p_map[j-1][i+1] == WHITE){
                          if( (p_map[j+3][i-3] == PAN || p_map[j+3][i-3] == NON) && (p_map[j-2][i+2] == PAN || p_map[j-2][i+2] == NON) && j+3 <= 14 && j-2 >= 0 && i+2 <= 14 && i-3 >= 0){
                              printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1368,6 +2027,12 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                      if(p_map[j+3][i-3] == WHITE && p_map[j+2][i-2] == WHITE && p_map[j+1][i-1] == WHITE){
                          if( (p_map[j+4][i-4] == PAN || p_map[j+4][i-4] == NON) && (p_map[j-1][i+1] == PAN || p_map[j-1][i+1] == NON) && j+4 <= 14 && j-1 >= 0 && i+1 <= 14 && i-4 >= 0){
                              printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                          }
                      }
                  }
@@ -1376,6 +2041,7 @@ int Game::findFW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
          }
      }
       printf("\n **** ENd Full W3******");
+      return find_num;
 
 }
 
@@ -1388,6 +2054,8 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
      */
     int p = 0;
     int b = 0;
+    int buf_p = 10 - buf_size;
+    int find_num = 0;
     for(int j = 0; j < 15; j++){
         for(int i =0; i < 15; i++){
             if(p_map[j][i] == PAN){//only PAN - Black cannot put NON
@@ -1398,6 +2066,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 //                            printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if (((p_map[j][i-1] == WHITE || p_map[j][i-1] == NON ) || (p_map[j][i+4] == WHITE || p_map[j][i+4] == NON )) && i+4 <= 14 && i-1>=0){//한쪽만 막힌 경우
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1407,6 +2081,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j][i-2] == WHITE || p_map[j][i-2] == NON) || (p_map[j][i+3] == WHITE || p_map[j][i+3] == NON))  && (i-2 >=0 && i+3 <= 14)){
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1416,6 +2096,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j][i-3] == WHITE || p_map[j][i-3] == NON) || (p_map[j][i+2] == WHITE || p_map[j][i+2] == NON))  && i+2 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1425,6 +2111,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j][i-4] == WHITE || p_map[j][i-4] == NON) || (p_map[j][i+1] == WHITE || p_map[j][i+1] == NON)) && i+1 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1436,6 +2128,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j-1][i] == WHITE || p_map[j-1][i] == NON) || (p_map[j+4][i] == WHITE || p_map[j+4][i] == NON )) && j+4 <= 14 && j-1>=0){
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1445,6 +2143,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j-2][i] == WHITE || p_map[j-2][i] == NON) || (p_map[j+3][i] == WHITE || p_map[j+3][i] == NON)) && (j-2 >=0 && j+3 <= 14)){
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1454,6 +2158,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j-3][i] == WHITE || p_map[j-3][i] == NON)  || (p_map[j+2][i] == WHITE || p_map[j+2][i] == NON)) && j+2 <= 14 && j-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1463,6 +2173,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j-4][i] == WHITE || p_map[j-4][i] == NON) || (p_map[j+1][i] == WHITE || p_map[j+1][i] == NON)) && j+1 <= 14 && j-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1474,6 +2190,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j-1][i-1] == WHITE || p_map[j-1][i-1] == NON) || (p_map[j+4][i+4] == WHITE || p_map[j+4][i+4] == NON)) && j+4 <= 14 && j-1>=0 && i+4 <= 14 && i-1>=0){
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                         }
                     }
                 }
@@ -1483,6 +2205,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if( ((p_map[j-2][i-2] == WHITE || p_map[j-2][i-2] == NON) || (p_map[j+3][i+3] == WHITE || p_map[j+3][i+3] == NON)) && (j-2 >=0 && j+3 <= 14) && (i-2 >=0 && i+3 <= 14) ){
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }//
                 }
@@ -1492,6 +2220,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j-3][i-3] == WHITE || p_map[j-3][i-3] == NON) || (p_map[j+2][i+2] == WHITE || p_map[j+2][i+2] == NON)) && j+2 <= 14 && j-3 >= 0 && i+2 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1501,6 +2235,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j-4][i-4] == WHITE || p_map[j-4][i-4] == NON) || (p_map[j+1][i+1] == WHITE || p_map[j+1][i+1] == NON)) && j+1 <= 14 && j-4 >= 0 && i+1 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1513,6 +2253,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j+1][i-1] == WHITE || p_map[j+1][i-1] == NON) || (p_map[j-4][i+4] == WHITE || p_map[j-4][i+4] == NON)) && (j+1<=14 && j-4>=0) && (i+4<=14 && i-1>=0)){
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1522,6 +2268,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if( ((p_map[j+2][i-2] == WHITE || p_map[j+2][i-2] == NON) || (p_map[j-3][i+3] == WHITE || p_map[j-3][i+3] == NON)) && (j-3 >=0 && j+2 <= 14) && (i-2 >=0 && i+3 <= 14) ){
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1531,6 +2283,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j+3][i-3] == WHITE || p_map[j+3][i-3] == NON) || (p_map[j-2][i+2] == WHITE || p_map[j-2][i+2] == NON)) && j+3 <= 14 && j-2 >= 0 && i+2 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1540,6 +2298,12 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j+4][i-4] == WHITE || p_map[j+4][i-4] == NON) || (p_map[j-1][i+1] == WHITE || p_map[j-1][i+1] == NON)) && j+4 <= 14 && j-1 >= 0 && i+1 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1548,6 +2312,7 @@ int Game::findHB3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
         }
     }
       printf("\n **** ENd Half B3******");
+      return find_num;
 
 }
 
@@ -1560,6 +2325,8 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
      */
     int p = 0;
     int b = 0;
+    int buf_p = 10 - buf_size;
+    int find_num = 0;
     for(int j = 0; j < 15; j++){
         for(int i =0; i < 15; i++){
             if(p_map[j][i] == PAN || p_map[j][i] == NON){//only PAN - Black cannot put NON
@@ -1570,6 +2337,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 //                            printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if (((p_map[j][i-1] == BLACK) || (p_map[j][i+4] == BLACK )) && i+4 <= 14 && i-1>=0){//한쪽만 막힌 경우
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1579,6 +2352,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j][i-2] == BLACK ) || (p_map[j][i+3] == BLACK))  && (i-2 >=0 && i+3 <= 14)){
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1588,6 +2367,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j][i-3] == BLACK) || (p_map[j][i+2] == BLACK))  && i+2 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1597,6 +2382,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j][i-4] == BLACK) || (p_map[j][i+1] == BLACK)) && i+1 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1608,6 +2399,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j-1][i] == BLACK) || (p_map[j+4][i] == BLACK)) && j+4 <= 14 && j-1>=0){
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1617,6 +2414,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j-2][i] == BLACK) || (p_map[j+3][i] == BLACK )) && (j-2 >=0 && j+3 <= 14)){
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1626,6 +2429,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j-3][i] == BLACK)  || (p_map[j+2][i] == BLACK )) && j+2 <= 14 && j-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1635,6 +2444,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
                             //printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
                         }else if(((p_map[j-4][i] == BLACK) || (p_map[j+1][i] == BLACK)) && j+1 <= 14 && j-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1646,6 +2461,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j-1][i-1] == BLACK) || (p_map[j+4][i+4] == BLACK )) && j+4 <= 14 && j-1>=0 && i+4 <= 14 && i-1>=0){
                              printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                             if(buf_p<10){
+                                 buf_xy[buf_p][0]=j;
+                                 buf_xy[buf_p][1]=i;
+                                 buf_p++;
+                                 find_num++;
+                             }
                         }
                     }
                 }
@@ -1655,6 +2476,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if( ((p_map[j-2][i-2] == BLACK ) || (p_map[j+3][i+3] == BLACK )) && (j-2 >=0 && j+3 <= 14) && (i-2 >=0 && i+3 <= 14) ){
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }//
                 }
@@ -1664,6 +2491,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j-3][i-3] == BLACK) || (p_map[j+2][i+2] == BLACK)) && j+2 <= 14 && j-3 >= 0 && i+2 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1673,6 +2506,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j-4][i-4] == BLACK) || (p_map[j+1][i+1] == BLACK)) && j+1 <= 14 && j-4 >= 0 && i+1 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1685,6 +2524,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j+1][i-1] == BLACK ) || (p_map[j-4][i+4] == BLACK )) && (j+1<=14 && j-4>=0) && (i+4<=14 && i-1>=0)){
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1694,6 +2539,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if( ((p_map[j+2][i-2] == BLACK ) || (p_map[j-3][i+3] == BLACK )) && (j-3 >=0 && j+2 <= 14) && (i-2 >=0 && i+3 <= 14) ){
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1703,6 +2554,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j+3][i-3] == BLACK ) || (p_map[j-2][i+2] == BLACK)) && j+3 <= 14 && j-2 >= 0 && i+2 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1712,6 +2569,12 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
 
                         }else if(((p_map[j+4][i-4] == BLACK) || (p_map[j-1][i+1] == BLACK )) && j+4 <= 14 && j-1 >= 0 && i+1 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1720,9 +2583,10 @@ int Game::findHW3(std::array<std::array<int,15>,15>& p_map, std::array<std::arra
         }
     }
       printf("\n **** ENd Half W3******");
+      return find_num;
 }
 
-int Game::findB2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+int Game::findB2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)//will make 3
 {
     printf("\n **** find B2******");
     /*
@@ -1731,181 +2595,1568 @@ int Game::findB2(std::array<std::array<int,15>,15>& p_map, std::array<std::array
      */
     int p = 0;
     int b = 0;
-    for(int j = 0; j < 15; j++){
-        for(int i =0; i < 15; i++){
-            if(p_map[j][i] == PAN){//only PAN - Black cannot put NON
-                if(i+3 <= 14){// 가로 - (N) <N> B B (N)
-                    if(p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK && p_map[j][i+3] == BLACK){
-                        if( (p_map[j][i-1] == WHITE || p_map[j][i-1] == NON ) && (p_map[j][i+4] == WHITE || p_map[j][i+4] == NON ) && i+4 <= 14 && i-1>=0) // 양측 모두 막힌 경우
-                        {
-//                            printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if (((p_map[j][i-1] == WHITE || p_map[j][i-1] == NON ) || (p_map[j][i+4] == WHITE || p_map[j][i+4] == NON )) && i+4 <= 14 && i-1>=0){//한쪽만 막힌 경우
-                            printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+    int buf_p = 10 - buf_size;
+    int find_num = 0;
+    for(int j = 0; j<=14;j++){
+        for(int i=0; i<=14;i++){
+            if(p_map[j][i] == PAN){//BLACK - PAN, WHITE - PAN + NON
+                //가로
+                // 1번째
+                // (N) <B> B B (N)
+                // <B> B (N) B (N)
+                // <B> (N) B B (N)
+                // <B> (N) B (N) B
+                if(p_map[j][i-1] == PAN &&
+                        p_map[j][i+1] == BLACK &&
+                        p_map[j][i+2] == BLACK &&
+                        p_map[j][i+3] == PAN &&
+                        i-1>=0 && i+3<=14){// (N) <B> B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if(i-1 >= 0 && i+2 <=14){// 가로 - (N) B <N> B B (N)
-                    if(p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK && p_map[j][i+2] == BLACK){
-                        if( (p_map[j][i-2] == WHITE || p_map[j][i-2] == NON) && (p_map[j][i+3] == WHITE || p_map[j][i+3] == NON)  && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
-                            //printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if(((p_map[j][i-2] == WHITE || p_map[j][i-2] == NON) || (p_map[j][i+3] == WHITE || p_map[j][i+3] == NON))  && (i-2 >=0 && i+3 <= 14)){
-                            printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                if(p_map[j][i-1] == PAN &&
+                        p_map[j][i+1] == BLACK &&
+                        p_map[j][i+2] == PAN &&
+                        p_map[j][i+3] == BLACK &&
+                        p_map[j][i+4] == PAN &&
+                        i-1 >= 0 && i+4<=14){// <B> B (N) B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if(i-2 >=0 && i+1 <=14){// 가로 - (N) B  B <N> B (N)
-                    if(p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK && p_map[j][i+1] == BLACK){
-                        if( (p_map[j][i-3] == WHITE || p_map[j][i-3] == NON) && (p_map[j][i+2] == WHITE || p_map[j][i+2] == NON)  && i+2 <= 14 && i-3 >= 0){
-                            //printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if(((p_map[j][i-3] == WHITE || p_map[j][i-3] == NON) || (p_map[j][i+2] == WHITE || p_map[j][i+2] == NON))  && i+2 <= 14 && i-3 >= 0){
-                            printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                if(p_map[j][i-1] == PAN &&
+                        p_map[j][i+1] == PAN &&
+                        p_map[j][i+2] == BLACK &&
+                        p_map[j][i+3] == BLACK &&
+                        p_map[j][i+4] == PAN &&
+                        i-1 >=0 && i+4<=14){// <B> (N) B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if( i-3 >=0 ){// 가로 - (N) B B  B <N> (N)
-                    if(p_map[j][i-3] == BLACK && p_map[j][i-2] == BLACK && p_map[j][i-1] == BLACK){
-                        if( (p_map[j][i-4] == WHITE || p_map[j][i-4] == NON) && (p_map[j][i+1] == WHITE || p_map[j][i+1] == NON) && i+1 <= 14 && i-4 >= 0){
-                            //printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if(((p_map[j][i-4] == WHITE || p_map[j][i-4] == NON) || (p_map[j][i+1] == WHITE || p_map[j][i+1] == NON)) && i+1 <= 14 && i-4 >= 0){
-                            printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                if(p_map[j][i+1] == PAN &&
+                        p_map[j][i+2] == BLACK &&
+                        p_map[j][i+3] == PAN &&
+                        p_map[j][i+4] == BLACK &&
+                        i+4<=14){// <B> (N) B (N) B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                //// - 세로
-                if(j+3 <= 14){// 세로 - (N) <N> B B B (N)
-                    if(p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK && p_map[j+3][i] == BLACK){
-                        if( (p_map[j-1][i] == WHITE || p_map[j-1][i] == NON) && (p_map[j+4][i] == WHITE || p_map[j+4][i] == NON ) && j+4 <= 14 && j-1>=0) // 좌 우측 검사
-                        {
-                            //printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if(((p_map[j-1][i] == WHITE || p_map[j-1][i] == NON) || (p_map[j+4][i] == WHITE || p_map[j+4][i] == NON )) && j+4 <= 14 && j-1>=0){
-                            printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                //2번째
+                // N  B <B> B N
+                // B <B> N  B N
+                if(p_map[j][i-2] == PAN &&
+                        p_map[j][i-1] == BLACK &&
+                        p_map[j][i+1] == BLACK &&
+                        p_map[j][i+2] == PAN &&
+                        i-2 >=0 && i+2 <= 14){// N  B <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if(j-1 >= 0 && j+2 <=14){// 세로 - (N) B <N> B B (N)
-                    if(p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK && p_map[j+2][i] == BLACK){
-                        if( (p_map[j-2][i] == WHITE || p_map[j-2][i] == NON) && (p_map[j+3][i] == WHITE || p_map[j+3][i] == NON) && (j-2 >=0 && j+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
-                            //printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if(((p_map[j-2][i] == WHITE || p_map[j-2][i] == NON) || (p_map[j+3][i] == WHITE || p_map[j+3][i] == NON)) && (j-2 >=0 && j+3 <= 14)){
-                            printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                if(p_map[j][i-2] == PAN &&
+                        p_map[j][i-1] == BLACK &&
+                        p_map[j][i+1] == PAN &&
+                        p_map[j][i+2] == BLACK &&
+                        p_map[j][i+3] == PAN &&
+                        i-2 >=0 && i+3 <= 14){  // B <B> N  B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if(j-2 >=0 && j+1 <=14){// 세로 - (N) B  B <N> B (N)
-                    if(p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK && p_map[j+1][i] == BLACK){
-                        if( (p_map[j-3][i] == WHITE || p_map[j-3][i] == NON)  && (p_map[j+2][i] == WHITE || p_map[j+2][i] == NON) && j+2 <= 14 && j-3 >= 0){
-                            //printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if(((p_map[j-3][i] == WHITE || p_map[j-3][i] == NON)  || (p_map[j+2][i] == WHITE || p_map[j+2][i] == NON)) && j+2 <= 14 && j-3 >= 0){
-                            printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                //3번째
+                // B N <B> B N
+                // B N <B> N B
+                // N B B <B> N
+                if(p_map[j][i-2] == BLACK &&
+                        p_map[j][i-1] == PAN &&
+                        p_map[j][i+1] == BLACK &&
+                        p_map[j][i+2] == PAN &&
+                        i-2 >=0 && i+2 <=14){// B N <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if( j-3 >=0){// 세로 - (N) B B  B <N> (N)
-                    if(p_map[j-3][i] == BLACK && p_map[j-2][i] == BLACK && p_map[j-1][i] == BLACK){
-                        if( (p_map[j-4][i] == WHITE || p_map[j-4][i] == NON) && (p_map[j+1][i] == WHITE || p_map[j+1][i] == NON) && j+1 <= 14 && j-4 >= 0){
-                            //printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }else if(((p_map[j-4][i] == WHITE || p_map[j-4][i] == NON) || (p_map[j+1][i] == WHITE || p_map[j+1][i] == NON)) && j+1 <= 14 && j-4 >= 0){
-                            printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                if(p_map[j][-3] == PAN &&
+                        p_map[j][i-2] == BLACK &&
+                        p_map[j][i-1] == PAN &&
+                        p_map[j][i+1] == PAN &&
+                        p_map[j][i+2] == BLACK &&
+                        i-3 >=0 && i+2 <=14){//// B N <B> N B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                // Dia 1 - "\"
-                if(i+1 <= 14 && j+3 <= 14){// Dia 1 - (N) <N> B B B (N)
-                    if(p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK && p_map[j+3][i+3] == BLACK){
-                        if( (p_map[j-1][i-1] == WHITE || p_map[j-1][i-1] == NON) && (p_map[j+4][i+4] == WHITE || p_map[j+4][i+4] == NON) && j+4 <= 14 && j-1>=0 && i+4 <= 14 && i-1>=0) // 좌 우측 검사
-                        {
+                if(p_map[j][i-3] == PAN &&
+                        p_map[j][i-2] == BLACK &&
+                        p_map[j][i-1] == BLACK &&
+                        p_map[j][i+1] == PAN &&
+                        i-3 >=0 && i+1 <=14){// N B B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //4번째
+                // B B N <B> N
+                // B N B <B> N
+                if(p_map[j][i-4] == PAN &&
+                        p_map[j][i-3] == BLACK &&
+                        p_map[j][i-2] == BLACK &&
+                        p_map[j][i-1] == PAN &&
+                        p_map[j][i+1] == PAN &&
+                        i-4>=0 && i+1<=14){// B B N <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j][i-4] == PAN &&
+                        p_map[j][i-3] == BLACK &&
+                        p_map[j][i-2] == PAN &&
+                        p_map[j][i-1] == BLACK &&
+                        p_map[j][i+1] == PAN &&
+                        i-4>=0 && i+1<=14){// B N B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
 
-                        }else if(((p_map[j-1][i-1] == WHITE || p_map[j-1][i-1] == NON) || (p_map[j+4][i+4] == WHITE || p_map[j+4][i+4] == NON)) && j+4 <= 14 && j-1>=0 && i+4 <= 14 && i-1>=0){
-                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
-                    }
-                }
-                if( i-1 >= 0 && i+2 <=14 && j-1 >= 0 && j+2 <=14){// Dia 1 - (N) B <N> B B (N)
-                    if(p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK && p_map[j+2][i+2] == BLACK){
-                        if( (p_map[j-2][i-2] == WHITE || p_map[j-2][i-2] == NON) && (p_map[j+3][i+3] == WHITE || p_map[j+3][i+3] == NON) && (j-2 >=0 && j+3 <= 14) && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
-
-                        }else if( ((p_map[j-2][i-2] == WHITE || p_map[j-2][i-2] == NON) || (p_map[j+3][i+3] == WHITE || p_map[j+3][i+3] == NON)) && (j-2 >=0 && j+3 <= 14) && (i-2 >=0 && i+3 <= 14) ){
-                            printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
-                    }//
-                }
-                if(i-2 >=0 && i+1 <=14 && j-2 >=0 && j+1 <=14){// Dia 1 - (N) B  B <N> B (N)
-                    if(p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK && p_map[j+1][i+1] == BLACK){
-                        if( (p_map[j-3][i-3] == WHITE || p_map[j-3][i-3] == NON) && (p_map[j+2][i+2] == WHITE || p_map[j+2][i+2] == NON) && j+2 <= 14 && j-3 >= 0 && i+2 <= 14 && i-3 >= 0){
-
-                        }else if(((p_map[j-3][i-3] == WHITE || p_map[j-3][i-3] == NON) || (p_map[j+2][i+2] == WHITE || p_map[j+2][i+2] == NON)) && j+2 <= 14 && j-3 >= 0 && i+2 <= 14 && i-3 >= 0){
-                            printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
-                    }
-                }
-                if( i-3 >=0 && j-3 >=0){// Dia 1 - (N) B B  B <N> (N)
-                    if(p_map[j-3][i-3] == BLACK && p_map[j-2][i-2] == BLACK && p_map[j-1][i-1] == BLACK){
-                        if( (p_map[j-4][i-4] == WHITE || p_map[j-4][i-4] == NON) && (p_map[j+1][i+1] == WHITE || p_map[j+1][i+1] == NON) && j+1 <= 14 && j-4 >= 0 && i+1 <= 14 && i-4 >= 0){
-
-                        }else if(((p_map[j-4][i-4] == WHITE || p_map[j-4][i-4] == NON) || (p_map[j+1][i+1] == WHITE || p_map[j+1][i+1] == NON)) && j+1 <= 14 && j-4 >= 0 && i+1 <= 14 && i-4 >= 0){
-                            printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                //5번째
+                // B N B N <B>
+                if(p_map[j][i-4] == BLACK &&
+                        p_map[j][i-3] == PAN &&
+                        p_map[j][i-2] == BLACK &&
+                        p_map[j][i-1] == PAN &&
+                        i-4>=0){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
 
-                // DIa 2 - /
-                if(i+3 <= 14 && j-3 >=0 ){// DIa 2 - (N) <N> B B B (N)
-                    if(p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK && p_map[j-3][i+3] == BLACK){
-                        if( (p_map[j+1][i-1] == WHITE || p_map[j+1][i-1] == NON) && (p_map[j-4][i+4] == WHITE || p_map[j-4][i+4] == NON) && (j+1<=14 && j-4>=0) && (i+4<=14 && i-1>=0)) // 좌 우측 검사
-                        {
-
-                        }else if(((p_map[j+1][i-1] == WHITE || p_map[j+1][i-1] == NON) || (p_map[j-4][i+4] == WHITE || p_map[j-4][i+4] == NON)) && (j+1<=14 && j-4>=0) && (i+4<=14 && i-1>=0)){
-                            printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                //세로-------------
+                // 1번째
+                // (N) <B> B B (N)
+                // <B> B (N) B (N)
+                // <B> (N) B B (N)
+                // <B> (N) B (N) B
+                if(p_map[j-1][i] == PAN &&
+                        p_map[j+1][i] == BLACK &&
+                        p_map[j+2][i] == BLACK &&
+                        p_map[j+3][i] == PAN &&
+                        j-1>=0 && j+3<=14){// (N) <B> B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if( i-1>=0 && i+2<=14 && j-2>=0 && j+1<=14 ){// Dia 2 - (N) B <N> B B (N)
-                    if(p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK && p_map[j-2][i+2] == BLACK){
-                        if( (p_map[j+2][i-2] == WHITE || p_map[j+2][i-2] == NON) && (p_map[j-3][i+3] == WHITE || p_map[j-3][i+3] == NON) && (j-3 >=0 && j+2 <= 14) && (i-2 >=0 && i+3 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
-
-                        }else if( ((p_map[j+2][i-2] == WHITE || p_map[j+2][i-2] == NON) || (p_map[j-3][i+3] == WHITE || p_map[j-3][i+3] == NON)) && (j-3 >=0 && j+2 <= 14) && (i-2 >=0 && i+3 <= 14) ){
-                            printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                if(p_map[j-1][i] == PAN &&
+                        p_map[j+1][i] == BLACK &&
+                        p_map[j+2][i] == PAN &&
+                        p_map[j+3][i] == BLACK &&
+                        p_map[j+4][i] == PAN &&
+                        j-1 >=0 && j+4<=14){// <B> B (N) B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if(i-2 >=0 && i+1 <=14 && j+2 >=0 && j-1 <=14){// Dia 2 - (N) B  B <N> B (N)
-                    if(p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK && p_map[j-1][i+1] == BLACK){
-                        if( (p_map[j+3][i-3] == WHITE || p_map[j+3][i-3] == NON) && (p_map[j-2][i+2] == WHITE || p_map[j-2][i+2] == NON) && j+3 <= 14 && j-2 >= 0 && i+2 <= 14 && i-3 >= 0){
-
-                        }else if(((p_map[j+3][i-3] == WHITE || p_map[j+3][i-3] == NON) || (p_map[j-2][i+2] == WHITE || p_map[j-2][i+2] == NON)) && j+3 <= 14 && j-2 >= 0 && i+2 <= 14 && i-3 >= 0){
-                            printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                if(p_map[j-1][i] == PAN &&
+                        p_map[j+1][i] == PAN &&
+                        p_map[j+2][i] == BLACK &&
+                        p_map[j+3][i] == BLACK &&
+                        p_map[j+4][i] == PAN &&
+                        j-1 >=0 && j+4<=14){// <B> (N) B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                if( i-3 >=0 && j+3 <= 14){// Dia 2 - (N) B B  B <N> (N)
-                    if(p_map[j+3][i-3] == BLACK && p_map[j+2][i-2] == BLACK && p_map[j+1][i-1] == BLACK){
-                        if( (p_map[j+4][i-4] == WHITE || p_map[j+4][i-4] == NON) && (p_map[j-1][i+1] == WHITE || p_map[j-1][i+1] == NON) && j+4 <= 14 && j-1 >= 0 && i+1 <= 14 && i-4 >= 0){
-
-                        }else if(((p_map[j+4][i-4] == WHITE || p_map[j+4][i-4] == NON) || (p_map[j-1][i+1] == WHITE || p_map[j-1][i+1] == NON)) && j+4 <= 14 && j-1 >= 0 && i+1 <= 14 && i-4 >= 0){
-                            printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
-                        }
+                if(p_map[j+1][i] == PAN &&
+                        p_map[j+2][i] == BLACK &&
+                        p_map[j+3][i] == PAN &&
+                        p_map[j+4][i] == BLACK &&
+                        j+4<=14){// <B> (N) B (N) B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
                     }
                 }
-                //
+                //2번째
+                // N  B <B> B N
+                // B <B> N  B N
+                if(p_map[j-2][i] == PAN &&
+                        p_map[j-1][i] == BLACK &&
+                        p_map[j+1][i] == BLACK &&
+                        p_map[j+2][i] == PAN &&
+                        j-2 >=0 && j+2 <= 14){// N  B <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-2][i] == PAN &&
+                        p_map[j-1][i] == BLACK &&
+                        p_map[j+1][i] == PAN &&
+                        p_map[j+2][i] == BLACK &&
+                        p_map[j+3][i] == PAN &&
+                        j-2 >=0 && j+3 <= 14){  // B <B> N  B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //3번째
+                // B N <B> B N
+                // B N <B> N B
+                // N B B <B> N
+                if(p_map[j-3][i] == PAN &&
+                        p_map[j-2][i] == BLACK &&
+                        p_map[j-1][i] == PAN &&
+                        p_map[j+1][i] == BLACK &&
+                        p_map[j+2][i] == PAN &&
+                        j-3 >=0 && j+2 <=14){// B N <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-2][i] == BLACK &&
+                        p_map[j-1][i] == PAN &&
+                        p_map[j+1][i] == PAN &&
+                        p_map[j+2][i] == BLACK &&
+                        j-2 >=0 && j+2 <=14){// B N <B> N B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-3][i] == PAN &&
+                        p_map[j-2][i] == BLACK &&
+                        p_map[j-1][i] == BLACK &&
+                        p_map[j+1][i] == PAN &&
+                        j-3 >=0 && j+1 <=14){// N B B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //4번째
+                // B B N <B> N
+                // B N B <B> N
+                if(p_map[j-4][i] == PAN &&
+                        p_map[j-3][i] == BLACK &&
+                        p_map[j-2][i] == BLACK &&
+                        p_map[j-1][i] == PAN &&
+                        p_map[j+1][i] == PAN &&
+                        j-4>=0 && j+1<=14){// B B N <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-4][i] == PAN &&
+                        p_map[j-3][i] == BLACK &&
+                        p_map[j-2][i] == PAN &&
+                        p_map[j-1][i] == BLACK &&
+                        p_map[j+1][i] == PAN &&
+                        j-4>=0 && j+1<=14){// B N B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //5번째
+                // B N B N <B>
+                if(p_map[j-4][i] == BLACK &&
+                        p_map[j-3][i] == PAN &&
+                        p_map[j-2][i] == BLACK &&
+                        p_map[j-1][i] == PAN &&
+                        j-4>=0){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //Dia 1 - "\" ----------------
+                // 1번째
+                // (N) <B> B B (N)
+                // <B> B (N) B (N)
+                // <B> (N) B B (N)
+                // <B> (N) B (N) B
+                if(p_map[j-1][i-1] == PAN &&
+                        p_map[j+1][i+1] == BLACK &&
+                        p_map[j+2][i+2] == BLACK &&
+                        p_map[j+3][i+3] == PAN &&
+                        j-1>=0 && j+3<=14 && i-1>=0 && i+3<=14){// (N) <B> B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-1][i-1] == PAN &&
+                        p_map[j+1][i+1] == BLACK &&
+                        p_map[j+2][i+2] == PAN &&
+                        p_map[j+3][i+3] == BLACK &&
+                        p_map[j+4][i+4] == PAN &&
+                        j-1 >=0 && i-1 >=0 && j+4<=14 && i+4<=14){// <B> B (N) B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-1][i-1] == PAN &&
+                        p_map[j+1][i+1] == PAN &&
+                        p_map[j+2][i+2] == BLACK &&
+                        p_map[j+3][i+3] == BLACK &&
+                        p_map[j+4][i+4] == PAN &&
+                        j+4<=14 && i+4<=14 && j-1 >=0 && i-1 >=0){// <B> (N) B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j+1][i+1] == PAN &&
+                        p_map[j+2][i+2] == BLACK &&
+                        p_map[j+3][i+3] == PAN &&
+                        p_map[j+4][i+4] == BLACK &&
+                        j+4<=14 && i+4<=14){// <B> (N) B (N) B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //2번째
+                // N  B <B> B N
+                // B <B> N  B N
+                if(p_map[j-2][i-2] == PAN &&
+                        p_map[j-1][i-1] == BLACK &&
+                        p_map[j+1][i+1] == BLACK &&
+                        p_map[j+2][i+2] == PAN &&
+                        j-2 >=0 && j+2 <= 14 && i-2 >=0 && i+2 <= 14){// N  B <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-2][i-2] == PAN &&
+                        p_map[j-1][i-1] == BLACK &&
+                        p_map[j+1][i+1] == PAN &&
+                        p_map[j+2][i+2] == BLACK &&
+                        p_map[j+3][i+3] == PAN &&
+                        j-2 >=0 && j+3 <= 14 && i-2 >=0 && i+3 <= 14){  // B <B> N  B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //3번째
+                // B N <B> B N
+                // B N <B> N B
+                // N B B <B> N
+                if(p_map[j-3][i-3] == PAN &&
+                        p_map[j-2][i-2] == BLACK &&
+                        p_map[j-1][i-1] == PAN &&
+                        p_map[j+1][i+1] == BLACK &&
+                        p_map[j+2][i+2] == PAN &&
+                        j-3 >=0 && j+2 <=14 && i-3 >=0 && i+2 <=14){// B N <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-2][i-2] == BLACK &&
+                        p_map[j-1][i-1] == PAN &&
+                        p_map[j+1][i+1] == PAN &&
+                        p_map[j+2][i+2] == BLACK &&
+                        j-2 >=0 && j+2 <=14 && i-2 >=0 && i+2 <=14){// B N <B> N B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-3][i-3] == PAN &&
+                        p_map[j-2][i-2] == BLACK &&
+                        p_map[j-1][i-1] == BLACK &&
+                        p_map[j+1][i+1] == PAN &&
+                        j-3 >=0 && j+1 <=14 && i-3 >=0 && i+1 <=14){// N B B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //4번째
+                // B B N <B> N
+                // B N B <B> N
+                if(p_map[j-4][i-4] == PAN &&
+                        p_map[j-3][i-3] == BLACK &&
+                        p_map[j-2][i-2] == BLACK &&
+                        p_map[j-1][i-1] == PAN &&
+                        p_map[j+1][i+1] == PAN &&
+                        j-4>=0 && j+1<=14 && i-4>=0 && i+1<=14){// B B N <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-4][i-4] == PAN &&
+                        p_map[j-3][i-3] == BLACK &&
+                        p_map[j-2][i-2] == PAN &&
+                        p_map[j-1][i-1] == BLACK &&
+                        p_map[j+1][i+1] == PAN &&
+                        j-4>=0 && j+1<=14 && i-4>=0 && i+1<=14){// B N B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //5번째
+                // B N B N <B>
+                if(p_map[j-4][i-4] == BLACK &&
+                        p_map[j-3][i-3] == PAN &&
+                        p_map[j-2][i-2] == BLACK &&
+                        p_map[j-1][i-1] == PAN &&
+                        j-4>=0 && i-4>=0){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //Dia 2 = "/" ----------------
+                // 1번째
+                // (N) <B> B B (N)
+                // <B> B (N) B (N)
+                // <B> (N) B B (N)
+                // <B> (N) B (N) B
+                if(p_map[j+1][i-1] == PAN &&
+                        p_map[j-1][i+1] == BLACK &&
+                        p_map[j-2][i+2] == BLACK &&
+                        p_map[j-3][i+3] == PAN &&
+                        j-3>=0 && j+1<=14 && i-1>=0 && i+3<=14){// (N) <B> B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j+1][i-1] == PAN &&
+                        p_map[j-1][i+1] == BLACK &&
+                        p_map[j-2][i+2] == PAN &&
+                        p_map[j-3][i+3] == BLACK &&
+                        p_map[j-4][i+4] == PAN &&
+                        i-1 >=0 && j+1 <=14 && j-4>=0 && i+4<=14){// <B> B (N) B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j+1][i-1] == PAN &&
+                        p_map[j-1][i+1] == PAN &&
+                        p_map[j-2][i+2] == BLACK &&
+                        p_map[j-3][i+3] == BLACK &&
+                        p_map[j-4][i+4] == PAN &&
+                        j+1<=14 && i-1 >=0 && j-4>=0 && i+4<=14){// <B> (N) B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-1][i+1] == PAN &&
+                        p_map[j-2][i+2] == BLACK &&
+                        p_map[j-3][i+3] == PAN &&
+                        p_map[j-4][i+4] == BLACK &&
+                        j-4>=0 && i+4<=14){// <B> (N) B (N) B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //2번째
+                // N  B <B> B N
+                // B <B> N  B N
+                if(p_map[j+2][i-2] == PAN &&
+                        p_map[j+1][i-1] == BLACK &&
+                        p_map[j-1][i+1] == BLACK &&
+                        p_map[j-2][i+2] == PAN &&
+                        j-2 >=0 && j+2 <= 14 && i-2 >=0 && i+2 <= 14){// N  B <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j+2][i-2] == PAN &&
+                        p_map[j+1][i-1] == BLACK &&
+                        p_map[j-1][i+1] == PAN &&
+                        p_map[j-2][i+2] == BLACK &&
+                        p_map[j-3][i+3] == PAN &&
+                        j-3 >=0 && j+2 <= 14 && i-2 >=0 && i+3 <= 14){  // B <B> N  B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //3번째
+                // B N <B> B N
+                // B N <B> N B
+                // N B B <B> N
+                if(p_map[j+3][i-3] == PAN &&
+                        p_map[j+2][i-2] == BLACK &&
+                        p_map[j+1][i-1] == PAN &&
+                        p_map[j-1][i+1] == BLACK &&
+                        p_map[j-2][i+2] == PAN &&
+                        j-2 >=0 && j+3 <=14 && i-3 >=0 && i+2 <=14){// B N <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j+2][i-2] == BLACK &&
+                        p_map[j+1][i-1] == PAN &&
+                        p_map[j-1][i+1] == PAN &&
+                        p_map[j-2][i+2] == BLACK &&
+                        j-2 >=0 && j+2 <=14 && i-2 >=0 && i+2 <=14){// B N <B> N B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j+3][i-3] == PAN &&
+                        p_map[j+2][i-2] == BLACK &&
+                        p_map[j+1][i-1] == BLACK &&
+                        p_map[j-1][i+1] == PAN &&
+                        j-1 >=0 && j+3 <=14 && i-3 >=0 && i+1 <=14){// N B B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //4번째
+                // B B N <B> N
+                // B N B <B> N
+                if(p_map[j+4][i-4] == PAN &&
+                        p_map[j+3][i-3] == BLACK &&
+                        p_map[j+2][i-2] == BLACK &&
+                        p_map[j+1][i-1] == PAN &&
+                        p_map[j-1][i+1] == PAN &&
+                        j-1>=0 && j+4<=14 && i-4>=0 && i+1<=14){// B B N <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j+4][i-4] == PAN &&
+                        p_map[j+3][i-3] == BLACK &&
+                        p_map[j+2][i-2] == PAN &&
+                        p_map[j+1][i-1] == BLACK &&
+                        p_map[j-1][i+1] == PAN &&
+                        j-1>=0 && j+4<=14 && i-4>=0 && i+1<=14){// B N B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //5번째
+                // B N B N <B>
+                if(p_map[j+4][i-4] == BLACK &&
+                        p_map[j+3][i-3] == PAN &&
+                        p_map[j+2][i-2] == BLACK &&
+                        p_map[j+1][i-1] == PAN &&
+                        j+4<=14 && i-4>=0){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
             }
         }
     }
-      printf("\n **** ENd Half B3******");
+
+    printf("\n **** ENd B2******");
+    return find_num;
 }
 
 int Game::findW2(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
 {
+    printf("\n **** find W2******");
+    /*
+      경우의 수
+      (B) (N) B B (N)
+     */
+    int p = 0;
+    int b = 0;
+    int buf_p = 10 - buf_size;
+    int find_num =0;
+    for(int j = 0; j<=14;j++){
+        for(int i=0; i<=14;i++){
+            if(p_map[j][i] == PAN || p_map[j][i] == NON){//BLACK - PAN, WHITE - PAN + NON
+                //가로
+                // 1번째
+                // (N) <B> B B (N)
+                // <B> B (N) B (N)
+                // <B> (N) B B (N)
+                // <B> (N) B (N) B
+                if((p_map[j][i-1] == PAN || p_map[j][i-1] == NON )&&
+                        p_map[j][i+1] == WHITE &&
+                        p_map[j][i+2] == WHITE &&
+                        (p_map[j][i+3] == PAN || p_map[j][i+3] == NON) &&
+                        i-1>=0 && i+3<=14){// (N) <B> B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if( (p_map[j][i-1] == PAN || p_map[j][i-1] == NON ) &&
+                        p_map[j][i+1] == WHITE &&
+                        (p_map[j][i+2] == PAN ||  p_map[j][i+2] == NON )&&
+                        p_map[j][i+3] == WHITE &&
+                        (p_map[j][i+4] == PAN || p_map[j][i+4] == NON) &&
+                        i+4<=14 && i-1 >=0 ){// <B> B (N) B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if( (p_map[j][i-1] == PAN || p_map[j][i-1] == NON ) &&
+                        (p_map[j][i+1] == PAN || p_map[j][i+1] == NON) &&
+                        p_map[j][i+2] == WHITE &&
+                        p_map[j][i+3] == WHITE &&
+                        (p_map[j][i+4] == PAN || p_map[j][i+4] == NON)&&
+                        i-1>=0 && i+4<=14){// <B> (N) B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j][i+1] == PAN || p_map[j][i+1] == NON) &&
+                        p_map[j][i+2] == WHITE &&
+                        (p_map[j][i+3] == PAN || p_map[j][i+3] == NON) &&
+                        p_map[j][i+4] == WHITE &&
+                        i+4<=14){// <B> (N) B (N) B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //2번째
+                // N  B <B> B N
+                // B <B> N  B N
+                if((p_map[j][i-2] == PAN || p_map[j][i-2] == NON) &&
+                        p_map[j][i-1] == WHITE &&
+                        p_map[j][i+1] == WHITE &&
+                        (p_map[j][i+2] == PAN || p_map[j][i+2] == NON) &&
+                        i-2 >=0 && i+2 <= 14){// N  B <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j][i-2] == PAN || p_map[j][i-2] == NON) &&
+                        p_map[j][i-1] == WHITE &&
+                        (p_map[j][i+1] == PAN || p_map[j][i+1] == NON) &&
+                        p_map[j][i+2] == WHITE &&
+                        (p_map[j][i+3] == PAN || p_map[j][i+3] == NON) &&
+                        i-2 >=0 && i+3 <= 14){  // B <B> N  B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //3번째
+                // B N <B> B N
+                // B N <B> N B
+                // N B B <B> N
+                if((p_map[j][i-3] == PAN || p_map[j][i-3] ==NON) &&
+                        p_map[j][i-2] == WHITE &&
+                        (p_map[j][i-1] == PAN || p_map[j][i-1] == NON) &&
+                        p_map[j][i+1] == WHITE &&
+                        (p_map[j][i+2] == PAN || p_map[j][i+2] == NON) &&
+                        i-3 >=0 && i+2 <=14){// B N <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j][i-2] == WHITE &&
+                        (p_map[j][i-1] == PAN || p_map[j][i-1] == NON) &&
+                        (p_map[j][i+1] == PAN || p_map[j][i+1] == NON) &&
+                        p_map[j][i+2] == WHITE &&
+                        i-2 >=0 && i+2 <=14){//// B N <B> N B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j][i-3] == PAN || p_map[j][i-3] == NON) &&
+                        p_map[j][i-2] == WHITE &&
+                        p_map[j][i-1] == WHITE &&
+                        (p_map[j][i+1] == PAN || p_map[j][i+1] == NON) &&
+                        i-3 >=0 && i+1 <=14){// N B B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //4번째
+                // B B N <B> N
+                // B N B <B> N
+                if((p_map[j][i-4] == PAN || p_map[j][i-4] == NON ) &&
+                        p_map[j][i-3] == WHITE &&
+                        p_map[j][i-2] == WHITE &&
+                        (p_map[j][i-1] == PAN || p_map[j][i-1] == NON) &&
+                        (p_map[j][i+1] == PAN || p_map[j][i+1] == NON) &&
+                        i-4>=0 && i+1<=14){// B B N <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j][i-4] == PAN|| p_map[j][i-4] == NON) &&
+                        p_map[j][i-3] == WHITE &&
+                        (p_map[j][i-2] == PAN || p_map[j][i-2] == NON) &&
+                        p_map[j][i-1] == WHITE &&
+                        (p_map[j][i+1] == PAN || p_map[j][i+1] == NON) &&
+                        i-4>=0 && i+1<=14){// B N B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //5번째
+                // B N B N <B>
+                if(p_map[j][i-4] == WHITE &&
+                        (p_map[j][i-3] == PAN || p_map[j][i-3] == NON) &&
+                        p_map[j][i-2] == WHITE &&
+                        (p_map[j][i-1] == PAN || p_map[j][i-1] == NON) &&
+                        i-4>=0){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //세로-------------
+                // 1번째
+                // (N) <B> B B (N)
+                // <B> B (N) B (N)
+                // <B> (N) B B (N)
+                // <B> (N) B (N) B
+                if((p_map[j-1][i] == PAN || p_map[j-1][i] == NON) &&
+                        p_map[j+1][i] == WHITE &&
+                        p_map[j+2][i] == WHITE &&
+                        (p_map[j+3][i] == PAN || p_map[j+3][i] == PAN) &&
+                        j-1>=0 && j+3<=14){// (N) <B> B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-1][i] == PAN || p_map[j-1][i] == NON) &&
+                        p_map[j+1][i] == WHITE &&
+                        (p_map[j+2][i] == PAN || p_map[j+2][i] == NON) &&
+                        p_map[j+3][i] == WHITE &&
+                        (p_map[j+4][i] == PAN  || p_map[j+4][i] == NON) &&
+                        j-1 >=0 && j+4<=14){// <B> B (N) B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-1][i] == PAN || p_map[j-1][i] == NON) &&
+                        (p_map[j+1][i] == PAN || p_map[j+1][i] == NON) &&
+                        p_map[j+2][i] == WHITE &&
+                        p_map[j+3][i] == WHITE &&
+                        (p_map[j+4][i] == PAN || p_map[j+4][i] == NON) &&
+                        j-1>=0 && j+4<=14){// <B> (N) B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j+1][i] == PAN || p_map[j+1][i] == NON) &&
+                        p_map[j+2][i] == WHITE &&
+                        (p_map[j+3][i] == PAN || p_map[j+3][i] == NON) &&
+                        p_map[j+4][i] == WHITE &&
+                        j+4<=14){// <B> (N) B (N) B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //2번째
+                // N  B <B> B N
+                // B <B> N  B N
+                if((p_map[j-2][i] == PAN || p_map[j-2][i] == NON) &&
+                        p_map[j-1][i] == WHITE &&
+                        p_map[j+1][i] == WHITE &&
+                        (p_map[j+2][i] == NON || p_map[j+2][i] == PAN) &&
+                        j-2 >=0 && j+2 <= 14){// N  B <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-2][i] == PAN || p_map[j-2][i] == NON) &&
+                        p_map[j-1][i] == WHITE &&
+                        (p_map[j+1][i] == PAN || p_map[j+1][i] == NON) &&
+                        p_map[j+2][i] == WHITE &&
+                        (p_map[j+3][i] == PAN || p_map[j+3][i] == NON) &&
+                        j-2 >=0 && j+3 <= 14){  // B <B> N  B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //3번째
+                // B N <B> B N
+                // B N <B> N B
+                // N B B <B> N
+                if((p_map[j-3][i] == PAN || p_map[j-3][i] == NON) &&
+                        p_map[j-2][i] == WHITE &&
+                        (p_map[j-1][i] == PAN || p_map[j-1][i] == NON) &&
+                        p_map[j+1][i] == WHITE &&
+                        (p_map[j+2][i] == PAN || p_map[j+2][i] == NON) &&
+                        j-3 >=0 && j+2 <=14){// B N <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-2][i] == WHITE &&
+                        (p_map[j-1][i] == PAN || p_map[j-1][i] == NON) &&
+                        (p_map[j+1][i] == PAN || p_map[j+1][i] == NON) &&
+                        p_map[j+2][i] == WHITE &&
+                        j-2 >=0 && j+2 <=14){// B N <B> N B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-3][i] == PAN || p_map[j-3][i] == NON) &&
+                        p_map[j-2][i] == WHITE &&
+                        p_map[j-1][i] == WHITE &&
+                        (p_map[j+1][i] == PAN || p_map[j+1][i] == NON) &&
+                        j-3 >=0 && j+1 <=14){// N B B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //4번째
+                // B B N <B> N
+                // B N B <B> N
+                if((p_map[j-4][i] == PAN || p_map[j-4][i] == NON) &&
+                        p_map[j-3][i] == WHITE &&
+                        p_map[j-2][i] == WHITE &&
+                        (p_map[j-1][i] == PAN || p_map[j-1][i] == NON) &&
+                        (p_map[j+1][i] == PAN || p_map[j+1][i] == NON) &&
+                        j-4>=0 && j+1<=14){// B B N <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-4][i] == PAN || p_map[j-4][i] == NON) &&
+                        p_map[j-3][i] == WHITE &&
+                        (p_map[j-2][i] == PAN || p_map[j-2][i] == NON) &&
+                        p_map[j-1][i] == WHITE &&
+                        (p_map[j+1][i] == PAN || p_map[j+1][i] == NON) &&
+                        j-4>=0 && j+1<=14){// B N B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //5번째
+                // B N B N <B>
+                if(p_map[j-4][i] == WHITE &&
+                        (p_map[j-3][i] == PAN || p_map[j-3][i] == NON) &&
+                        p_map[j-2][i] == WHITE &&
+                        (p_map[j-1][i] == PAN || p_map[j-1][i] == NON) &&
+                        j-4>=0){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //Dia 1 - "\" ----------------
+                // 1번째
+                // (N) <B> B B (N)
+                // <B> B (N) B (N)
+                // <B> (N) B B (N)
+                // <B> (N) B (N) B
+                if((p_map[j-1][i-1] == PAN || p_map[j-1][i-1] == NON) &&
+                        p_map[j+1][i+1] == WHITE &&
+                        p_map[j+2][i+2] == WHITE &&
+                        (p_map[j+3][i+3] == PAN || p_map[j+3][i+3] == NON) &&
+                        j-1>=0 && j+3<=14 && i-1>=0 && i+3<=14){// (N) <B> B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-1][i-1] == PAN || p_map[j-1][i-1] == NON) &&
+                        p_map[j+1][i+1] == WHITE &&
+                        (p_map[j+2][i+2] == PAN || p_map[j+2][i+2] == NON) &&
+                        p_map[j+3][i+3] == WHITE &&
+                        (p_map[j+4][i+4] == PAN || p_map[j+4][i+4] == NON) &&
+                        j-1>=0 && i-1>=0 && j+4<=14 && i+4<=14){// <B> B (N) B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-1][i-1] == PAN || p_map[j-1][i-1] == NON) &&
+                        (p_map[j+1][i+1] == PAN || p_map[j+1][i+1] == NON) &&
+                        p_map[j+2][i+2] == WHITE &&
+                        p_map[j+3][i+3] == WHITE &&
+                        (p_map[j+4][i+4] == PAN  || p_map[j+4][i+4] == NON) &&
+                        j-1>=0 && i-1>=0 && j+4<=14 && i+4<=14){// <B> (N) B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j+1][i+1] == PAN || p_map[j+1][i+1] == NON) &&
+                        p_map[j+2][i+2] == WHITE &&
+                        (p_map[j+3][i+3] == PAN || p_map[j+3][i+3] == NON) &&
+                        p_map[j+4][i+4] == WHITE &&
+                        j+4<=14 && i+4<=14){// <B> (N) B (N) B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //2번째
+                // N  B <B> B N
+                // B <B> N  B N
+                if((p_map[j-2][i-2] == PAN || p_map[j-2][i-2] == NON) &&
+                        p_map[j-1][i-1] == WHITE &&
+                        p_map[j+1][i+1] == WHITE &&
+                        (p_map[j+2][i+2] == PAN || p_map[j+2][i+2] == NON) &&
+                        j-2 >=0 && j+2 <= 14 && i-2 >=0 && i+2 <= 14){// N  B <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-2][i-2] == PAN || p_map[j-2][i-2] == NON) &&
+                        p_map[j-1][i-1] == WHITE &&
+                        (p_map[j+1][i+1] == PAN || p_map[j+1][i+1] == NON) &&
+                        p_map[j+2][i+2] == WHITE &&
+                        (p_map[j+3][i+3] == PAN || p_map[j+3][i+3] == NON) &&
+                        j-2 >=0 && j+3 <= 14 && i-2 >=0 && i+3 <= 14){  // B <B> N  B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //3번째
+                // B N <B> B N
+                // B N <B> N B
+                // N B B <B> N
+                if((p_map[j-3][i-3] == PAN || p_map[j-3][i-3] == NON) &&
+                        p_map[j-2][i-2] == WHITE &&
+                        (p_map[j-1][i-1] == PAN || p_map[j-1][i-1] == NON) &&
+                        p_map[j+1][i+1] == WHITE &&
+                        (p_map[j+2][i+2] == PAN || p_map[j+2][i+2] == NON) &&
+                        j-3 >=0 && j+2 <=14 && i-3 >=0 && i+2 <=14){// B N <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j-2][i-2] == WHITE &&
+                        (p_map[j-1][i-1] == PAN || p_map[j-1][i-1] == NON) &&
+                        (p_map[j+1][i+1] == PAN || p_map[j+1][i+1] == NON) &&
+                        p_map[j+2][i+2] == WHITE &&
+                        j-2 >=0 && j+2 <=14 && i-2 >=0 && i+2 <=14){// B N <B> N B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-3][i-3] == PAN || p_map[j-3][i-3] == NON) &&
+                        p_map[j-2][i-2] == WHITE &&
+                        p_map[j-1][i-1] == WHITE &&
+                        (p_map[j+1][i+1] == PAN || p_map[j+1][i+1] == NON) &&
+                        j-3 >=0 && j+1 <=14 && i-3 >=0 && i+1 <=14){// N B B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //4번째
+                // B B N <B> N
+                // B N B <B> N
+                if((p_map[j-4][i-4] == PAN || p_map[j-4][i-4] == NON) &&
+                        p_map[j-3][i-3] == WHITE &&
+                        p_map[j-2][i-2] == WHITE &&
+                        (p_map[j-1][i-1] == PAN || p_map[j-1][i-1] == NON) &&
+                        (p_map[j+1][i+1] == PAN || p_map[j+1][i+1] == NON) &&
+                        j-4>=0 && j+1<=14 && i-4>=0 && i+1<=14){// B B N <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-4][i-4] == PAN || p_map[j-4][i-4] == NON) &&
+                        p_map[j-3][i-3] == WHITE &&
+                        (p_map[j-2][i-2] == PAN || p_map[j-2][i-2] == NON) &&
+                        p_map[j-1][i-1] == WHITE &&
+                        (p_map[j+1][i+1] == PAN || p_map[j+1][i+1] == NON) &&
+                        j-4>=0 && j+1<=14 && i-4>=0 && i+1<=14){// B N B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //5번째
+                // B N B N <B>
+                if(p_map[j-4][i-4] == WHITE &&
+                        (p_map[j-3][i-3] == PAN || p_map[j-3][i-3] == NON) &&
+                        p_map[j-2][i-2] == WHITE &&
+                        (p_map[j-1][i-1] == PAN || p_map[j-1][i-1] == NON) &&
+                        j-4>=0 && i-4>=0){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //Dia 2 = "/" ----------------
+                // 1번째
+                // (N) <B> B B (N)
+                // <B> B (N) B (N)
+                // <B> (N) B B (N)
+                // <B> (N) B (N) B
+                if((p_map[j+1][i-1] == PAN || p_map[j+1][i-1] == NON) &&
+                        p_map[j-1][i+1] == WHITE &&
+                        p_map[j-2][i+2] == WHITE &&
+                        (p_map[j-3][i+3] == PAN || p_map[j-3][i+3] == NON) &&
+                        j-3>=0 && j+1<=14 && i-1>=0 && i+3<=14){// (N) <B> B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j+1][i-1] == PAN || p_map[j+1][i-1] == NON) &&
+                        p_map[j-1][i+1] == WHITE &&
+                        (p_map[j-2][i+2] == PAN || p_map[j-2][i+2] == NON)&&
+                        p_map[j-3][i+3] == WHITE &&
+                        (p_map[j-4][i+4] == PAN || p_map[j-4][i+4] == NON)&&
+                        j+1 <= 14 && i-1 >=0 && j-4>=0 && i+4<=14){// <B> B (N) B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j+1][i-1] == PAN || p_map[j+1][i-1] == NON) &&
+                        (p_map[j-1][i+1] == PAN || p_map[j-1][i+1] == NON) &&
+                        p_map[j-2][i+2] == WHITE &&
+                        p_map[j-3][i+3] == WHITE &&
+                        (p_map[j-4][i+4] == PAN || p_map[j-4][i+4] == NON) &&
+                        j+1<=14 && i-1 >=0 && j-4>=0 && i+4<=14){// <B> (N) B B (N)
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j-1][i+1] == PAN || p_map[j-1][i+1] == NON) &&
+                        p_map[j-2][i+2] == WHITE &&
+                        (p_map[j-3][i+3] == PAN || p_map[j-3][i+3] == NON) &&
+                        p_map[j-4][i+4] == WHITE &&
+                        j-4>=0 && i+4<=14){// <B> (N) B (N) B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //2번째
+                // N  B <B> B N
+                // B <B> N  B N
+                if((p_map[j+2][i-2] == PAN || p_map[j+2][i-2] == NON) &&
+                        p_map[j+1][i-1] == WHITE &&
+                        p_map[j-1][i+1] == WHITE &&
+                        (p_map[j-2][i+2] == PAN || p_map[j-2][i+2] == NON) &&
+                        j-2 >=0 && j+2 <= 14 && i-2 >=0 && i+2 <= 14){// N  B <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j+2][i-2] == PAN || p_map[j+2][i-2] == NON) &&
+                        p_map[j+1][i-1] == WHITE &&
+                        (p_map[j-1][i+1] == PAN || p_map[j-1][i+1] == NON) &&
+                        p_map[j-2][i+2] == WHITE &&
+                        (p_map[j-3][i+3] == PAN || p_map[j-3][i+3] == NON) &&
+                        j-3 >=0 && j+2 <= 14 && i-2 >=0 && i+3 <= 14){  // B <B> N  B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //3번째
+                // B N <B> B N
+                // B N <B> N B
+                // N B B <B> N
+                if((p_map[j+3][i-3] == PAN || p_map[j+3][i-3] == NON) &&
+                        p_map[j+2][i-2] == WHITE &&
+                        (p_map[j+1][i-1] == PAN || p_map[j+1][i-1] == NON) &&
+                        p_map[j-1][i+1] == WHITE &&
+                        (p_map[j-2][i+2] == PAN || p_map[j-2][i+2] == NON) &&
+                        j-2 >=0 && j+3 <=14 && i-3 >=0 && i+2 <=14){// B N <B> B N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if(p_map[j+2][i-2] == WHITE &&
+                        (p_map[j+1][i-1] == PAN || p_map[j+1][i-1] == NON) &&
+                        (p_map[j-1][i+1] == PAN || p_map[j-1][i+1] == NON) &&
+                        p_map[j-2][i+2] == WHITE &&
+                        j-2 >=0 && j+2 <=14 && i-2 >=0 && i+2 <=14){// B N <B> N B
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j+3][i-3] == PAN || p_map[j+3][i-3] == NON) &&
+                        p_map[j+2][i-2] == WHITE &&
+                        p_map[j+1][i-1] == WHITE &&
+                        (p_map[j-1][i+1] == PAN || p_map[j-1][i+1] == NON) &&
+                        j-1 >=0 && j+3 <=14 && i-3 >=0 && i+1 <=14){// N B B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                //4번째
+                // B B N <B> N
+                // B N B <B> N
+                if((p_map[j+4][i-4] == PAN || p_map[j+4][i-4] == NON) &&
+                        p_map[j+3][i-3] == WHITE &&
+                        p_map[j+2][i-2] == WHITE &&
+                        (p_map[j+1][i-1] == PAN  || p_map[j+1][i-1] == NON) &&
+                        (p_map[j-1][i+1] == PAN || p_map[j-1][i+1] == NON) &&
+                        j-1>=0 && j+4<=14 && i-4>=0 && i+1<=14){// B B N <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+                if((p_map[j+4][i-4] == PAN || p_map[j+4][i-4] == NON) &&
+                        p_map[j+3][i-3] == WHITE &&
+                        (p_map[j+2][i-2] == PAN || p_map[j+2][i-2] == NON) &&
+                        p_map[j+1][i-1] == WHITE &&
+                        (p_map[j-1][i+1] == PAN || p_map[j-1][i+1] == NON) &&
+                        j-1>=0 && j+4<=14 && i-4>=0 && i+1<=14){// B N B <B> N
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+
+                //5번째
+                // B N B N <B>
+                if(p_map[j+4][i-4] == WHITE &&
+                        (p_map[j+3][i-3] == PAN || p_map[j+3][i-3] == NON) &&
+                        p_map[j+2][i-2] == WHITE &&
+                        (p_map[j+1][i-1] == PAN || p_map[j+1][i-1] == NON) &&
+                        j+4<=14 && i-4>=0){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                    if(buf_p<10){
+                        buf_xy[buf_p][0]=j;
+                        buf_xy[buf_p][1]=i;
+                        buf_p++;
+                        find_num++;
+                    }
+                }
+            }
+        }
+    }
+
+
+    printf("\n **** ENd W2******");
+    return find_num;
+}
+
+int Game::findB1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy,std::array<std::array<int,15>,15>& bit_map, int buf_size)
+{
+     printf("\n **** ENd B1******");
+    for(int j=1;j<14;j++){
+        for(int i=1;i<14;i++){
+            int pan_num=0;
+            if(p_map[j][i] == BLACK){
+                for(int k=j-1;k<=j+1;k++){
+                    for(int t=i-1;t<=i+1;t++){
+                        if(p_map[k][t] == PAN){
+                            bit_map[k][t]++;
+                            pan_num++;
+                        }
+                    }
+                }
+                if(pan_num >=5){
+                    printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                }
+            }
+        }
+    }
+    printf("\nBlakc bit map\n");
+    for(int j=0;j<15;j++){
+        for(int i=0;i<15;i++){
+            printf("%d ",bit_map[j][i]);
+        }
+        printf("\n");
+    }
+    printf("\nBlakc bit map end \n");
+     printf("\n **** ENd B1******");
 
 }
 
-int Game::findB1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+int Game::findW1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy,std::array<std::array<int,15>,15>& bit_map, int buf_size)
 {
-
+    printf("\n **** ENd B1******");
+   for(int j=1;j<14;j++){
+       for(int i=1;i<14;i++){
+           int pan_num=0;
+           if(p_map[j][i] == WHITE){
+               for(int k=j-1;k<=j+1;k++){
+                   for(int t=i-1;t<=i+1;t++){
+                       if(p_map[k][t] == PAN){
+                           bit_map[k][t]++;
+                           pan_num++;
+                       }
+                   }
+               }
+               if(pan_num >=5){
+                   printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+               }
+           }
+       }
+   }
+   printf("\White bit map\n");
+   for(int j=0;j<15;j++){
+       for(int i=0;i<15;i++){
+           printf("%d ",bit_map[j][i]);
+       }
+       printf("\n");
+   }
+   printf("\White bit map end \n");
+   printf("\n **** ENd B1******");
 }
 
-int Game::findW1(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
+void Game::testpair(std::array<std::array<int, 2>, 10> &buf_xy)
 {
-
+    printf("\n --------test array----------\n");
+    printf("buf-xy. y = %d\n",buf_xy[0][0]);
+    printf("buf-xy. x = %d",buf_xy[0][1]);
+    printf("\n");
+    printf("buf-xy. y = %d\n",buf_xy[9][0]);
+    printf("buf-xy. x = %d",buf_xy[9][1]);
+    printf("\n-----------test end -----------\n");
 }
 
 int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array<int, 2>, 10> &buf_xy, int buf_size)
@@ -1913,6 +4164,9 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
     printf("\n **** find W4******");
     int p = 0;
     int b = 0;
+    int buf_p = 10 - buf_size;
+    int find_num = 0;
+
     for(int j = 0; j < 15; j++){
         for(int i =0; i < 15; i++){
             if( p_map[j][i] == NON ||p_map[j][i] == PAN){//White - PAN, NON
@@ -1921,10 +4175,22 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                         if( p_map[j][i-1]  != WHITE && i-1>=0) // 좌측 검사
                         {
                             printf("\n 1-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                         else if( i == 0) //
                         {   //push(j,i);
                             printf("\n 1-2 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1932,10 +4198,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j][i-1] == WHITE && p_map[j][i+1] == WHITE && p_map[j][i+2] == WHITE && p_map[j][i+3] == WHITE){
                         if( p_map[j][i-2] != WHITE && p_map[j][i+4] != WHITE && (i-2 >=0 && i+4 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                             printf("\n 1-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i-2] != WHITE && i+3 == 14){//좌측 체크 (우측은 이미 끝에 도달)
                             printf("\n 1-4 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i+4] != WHITE && i -1 == 0 ){//우측 체크
                             printf("\n 1-5 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1943,10 +4227,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j][i-2] == WHITE && p_map[j][i-1] == WHITE && p_map[j][i+1] == WHITE && p_map[j][i+2] == WHITE ){
                         if( p_map[j][i-3] != WHITE && p_map[j][i+3] != WHITE && i+3 <= 14 && i-3 >= 0){
                             printf("\n 1-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i+3] != WHITE && i - 2 == 0){//좌측에 붙어있음 -> 우측만 검사
                             printf("\n 1-7 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i-3] != WHITE && i + 2 == 14){//우측에 붙어 있음 -> 좌측만 검사
                             printf("\n 1-8 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1954,10 +4256,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j][i-3] == WHITE && p_map[j][i-2] == WHITE && p_map[j][i-1] == WHITE && p_map[j][i+1] == WHITE){
                         if( p_map[j][i+2] != WHITE && p_map[j][i-4] != WHITE && i+2 <= 14 && i-4 >= 0){
                             printf("\n 1-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if ( p_map[j][i+2] !=WHITE && i -3 == 0){//좌측에 붙음 -> 우측만 검사
                             printf("\n 1-10 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i-4] != WHITE && i+1 == 14){//우측에 붙음 -> 좌측만 검사
                             printf("\n 1-11 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1965,8 +4285,20 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j][i-4] == WHITE && p_map[j][i-3] == WHITE && p_map[j][i-2] == WHITE && p_map[j][i-1] == WHITE){
                         if(i == 14){//이미 끝에 도달 - 검사할것 없음(원래는 우측 검사)
                             printf("\n 1-12 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j][i+1] != WHITE && i != 14){//우측 검사
                             printf("\n 1-13 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1976,10 +4308,22 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                         if( p_map[j-1][i]  != WHITE && j-1>=0)//상단 검사 할거리 있을 경우
                         {
                             printf("\n 2-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                         else if( j== 0)//상단에 붙어있음 - 검사 할거리 없음
                         {   //push(j,i);
                             printf("\n 2-2 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1987,10 +4331,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j-1][i] == WHITE && p_map[j+1][i] == WHITE && p_map[j+2][i] == WHITE && p_map[j+3][i] == WHITE){
                         if( p_map[j-2][i] != WHITE && p_map[j+4][i] != WHITE && (j-2 >=0 && j+4 <= 14) ){//양쪽 모두 체크 - 중앙에 있음
                             printf("\n 2-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-2][i] != WHITE && j+3 == 14){//상단 체크 (하단은 이미 끝에 도달)
                             printf("\n 2-4 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+4][i] != WHITE && j -1 == 0 ){//하단 체크 - 상단은 이미 상단에 도달
                             printf("\n 2-5 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -1998,10 +4360,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j-2][i] == WHITE && p_map[j-1][i] == WHITE && p_map[j+1][i] == WHITE && p_map[j+2][i] == WHITE ){
                         if( p_map[j-3][i] != WHITE && p_map[j+3][i] != WHITE && j+3 <= 14 && j-3 >= 0){
                             printf("\n 2-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+3][i] != WHITE && j - 2 == 0){//상단에 붙어 있을 경우 -> 하단만 검사
                             printf("\n 2-7 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-3][i] != WHITE && j + 2 == 14){//하단에 붙어 있을경우 -> 상단만 검사
                             printf("\n 2-8 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2009,10 +4389,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j-3][i] == WHITE && p_map[j-2][i] == WHITE && p_map[j-1][i] == WHITE && p_map[j+1][i] == WHITE){
                         if( p_map[j+2][i] != WHITE && p_map[j-4][i] != WHITE && j+2 <= 14 && j-4 >= 0){
                             printf("\n 2-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if ( p_map[j+2][i] !=WHITE && j -3 == 0){//상단에 붙음 - 하단만 검사
                             printf("\n 2-10 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-4][i] != WHITE && j+1 == 14){//하단에 붙음 - 상단만 검사
                             printf("\n 2-11 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2020,8 +4418,20 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j-4][i] == WHITE && p_map[j-3][i] == WHITE && p_map[j-2][i] == WHITE && p_map[j-1][i] == WHITE){
                         if(j == 14){//이미 끝에 도달 - 굳이 상단 검사할 필요없음 - 5개여서
                             printf("\n 2-12 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+1][i] != WHITE && j != 14){//하단 검사
                             printf("\n 2-13 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2031,10 +4441,22 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                         if( p_map[j-1][i-1] != WHITE && j-1>=0 && i-1>=0)//우측에 있으면 이미 5개임 -> 검사할 필요 없음 - 좌측만 돌 없으면 4
                         {
                             printf("\n 3-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                         else if( i == 0 || j== 0)//좌측에 달라 붙어 있을경우 - 검사 필요 없음
                         {   //push(j,i);
                             printf("\n 3-2 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2042,10 +4464,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j-1][i-1] == WHITE && p_map[j+1][i+1] == WHITE && p_map[j+2][i+2] == WHITE && p_map[j+3][i+3] == WHITE){
                         if( p_map[j-2][i-2] != WHITE && p_map[j+4][i+4] != WHITE && (i-2 >=0 && i+4 <= 14) && (j-2 >=0 && j+4 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
                             printf("\n 3-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-2][i-2] != WHITE && (i+3 == 14 || j+3 == 14)){//좌측 체크 (우측은 이미 끝에 도달)
                             printf("\n 3-4 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+4][i+4] != WHITE && (i -1 == 0  || j -1 == 0) ){//우측 체크
                             printf("\n 3-5 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2053,10 +4493,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j-2][i-2] == WHITE && p_map[j-1][i-1] == WHITE && p_map[j+1][i+1] == WHITE && p_map[j+2][i+2] == WHITE ){
                         if( p_map[j-3][i-3] != WHITE && p_map[j+3][i+3] != WHITE && i+3 <= 14 && i-3 >= 0 && j+3 <= 14 && j-3 >= 0){
                             printf("\n 3-6 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+3][i+3] != WHITE && (i - 2 == 0 || j - 2 == 0)){
                             printf("\n 3-7 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-3][i-3] != WHITE && (i + 2 == 14 || j + 2 == 14)){
                             printf("\n 3-8 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2064,10 +4522,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j-3][i-3] == WHITE && p_map[j-2][i-2] == WHITE && p_map[j-1][i-1] == WHITE && p_map[j+1][i+1] == WHITE){
                         if( p_map[j+2][i+2] != WHITE && p_map[j-4][i-4] != WHITE && i+2 <= 14 && i-4 >= 0 && j+2 <= 14 && j-4 >= 0){
                             printf("\n 3-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if ( p_map[j+2][i+2] !=WHITE && (i -3 == 0 || j -3 == 0)){
                             printf("\n 3-10 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-4][i-4] != WHITE && (i+1 == 14 || j+1 == 14)){
                             printf("\n 3-11 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2075,8 +4551,20 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j-4][i-4] == WHITE && p_map[j-3][i-3] == WHITE && p_map[j-2][i-2] == WHITE && p_map[j-1][i-1] == WHITE){
                         if( i == 14 || j == 14){//이미 끝에 도달 -- 좌측 검사할 필요 없음(5개니까) - 우측 검사할 칸 없음
                             printf("\n 3-12 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+1][i+1] != WHITE && i != 14 && j != 14){
                             printf("\n 3-13 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2086,10 +4574,22 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                         if( p_map[j+1][i-1]  != WHITE && j+1<=14 && i-1>=0) // 좌측 검사 - 좌측이 있을 경우
                         {
                             printf("\n 4-1 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                         else if( j == 14 || i == 0)//ㄴ 라인
                         {   //push(j,i);
                             printf("\n 4-2 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2098,10 +4598,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                         if( p_map[j+2][i-2] != WHITE && p_map[j-4][i+4] != WHITE &&
                                 (i-2 >=0 && i+4 <= 14) && (j-4 >=0 && j+2 <= 14) ){//양쪽 모두 체큰 - 중앙에 있음
                             printf("\n 4-3 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+2][i-2] != WHITE  && (i+3 == 14 || j-3 == 0)){//좌측 체크 (우측은 이미 끝에 도달) ㄱ 형태
                             printf("\n 4-4 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-4][i+4] != WHITE && (j + 1 == 14 || i -1 == 0 )){//우측 체크 ㄴ 형태
                             printf("\n 4-5 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2110,10 +4628,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                         if( p_map[j+3][i-3] != WHITE && p_map[j-3][i+3] != WHITE &&
                                 (i-3 >=0 && i+3 <=14 ) && (j-3 >=0 && j+3 <= 14)){
                             printf("\n 4-6find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j+3][i-3] != WHITE && ( j == 2 || i == 12)){//하단 검사
                             printf("\n 4-7 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-3][i+3] != WHITE && ( j == 12 || i == 2)){//상단 검사
                             printf("\n 4-8 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2122,10 +4658,28 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                         if( p_map[j+4][i-4] != WHITE && p_map[j-2][i+2] != WHITE &&
                                 (j+4 <= 14 && i-4>=0) && (j-2 >=0 && i+2 <= 14)){// 2<=j<= 10   4<=i<=12
                             printf("\n 4-9 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if ( p_map[j+4][i-4] !=WHITE && (j == 1 || i == 13)){
                             printf("\n 4-10 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( p_map[j-2][i+2] != WHITE && (j == 11 || i == 3)){
                             printf("\n 4-11 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2133,8 +4687,20 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
                     if(p_map[j+4][i-4] == WHITE && p_map[j+3][i-3] == WHITE && p_map[j+2][i-2] == WHITE && p_map[j+1][i-1] == WHITE){
                         if(p_map[j-1][i+1] !=WHITE && (j-1>=0 && i+1<=14)){//우측 검사 - 우측이 있을 경우
                             printf("\n 4-12 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }else if( j == 0 || i == 14){// 검사 필요 없음
                             printf("\n 4-13 find connect 4 - j = %d , i = %d   ",j,i);
+                            if(buf_p<10){
+                                buf_xy[buf_p][0]=j;
+                                buf_xy[buf_p][1]=i;
+                                buf_p++;
+                                find_num++;
+                            }
                         }
                     }
                 }
@@ -2142,6 +4708,7 @@ int Game::findW4(std::array<std::array<int,15>,15>& p_map, std::array<std::array
         }
     }
      printf("\n **** ENd W4******");
+     return find_num;
 }
 
 bool Game::checkNon(std::array<std::array<int, 15>, 15> i_map)
@@ -2152,14 +4719,23 @@ bool Game::checkNon(std::array<std::array<int, 15>, 15> i_map)
 int Game::miniMax(std::array<std::array<int, 15>, 15> &p_map, int depth, int al, int be, bool turn)
 {
     if(depth == 5){//cal board
-        int scor = calScore(p_map);
-        return scor;
+        //int scor = calScore(p_map);
+        printf("\n ********** Last map Start ************\n");
+        for(int j=0;j < 15;j++){
+            for(int i =0;i < 15;i++){
+                printf("%d ",p_map[j][i]);
+            }
+            printf("\n");
+        }
+        printf("\n ********** Last map End************\n");
+        return 1;
     }
     std::array<std::array<int, 15>, 15> my_b;
     std::array<std::array<int,2>,10> buf_xy;
+
     uint8_t x;
     uint8_t y;
-    int xy_size;
+    int xy_size = 0 ;
 // copy board
     printf("\n ------Test---------\n");
     for(int j=0; j < 15; j++){//copy Board
@@ -2175,40 +4751,64 @@ int Game::miniMax(std::array<std::array<int, 15>, 15> &p_map, int depth, int al,
 //
 
 // find spot
+
     if(turn == BLACK){
         xy_size = findSpotB(my_b,buf_xy,10);
+        printf("\n ----------- minimax BLACK test size = %d---------\n",xy_size);
+        for(int i=0; i < xy_size;i++){
+            printf(" %d.y = %d\n", i,buf_xy[i][0]);
+            printf(" %d.x = %d\n", i, buf_xy[i][1]);
+        }
+        printf("\n ----------- minimax BLACK END ----------\n");
     }
     else if(turn == WHITE){
         xy_size = findSpotW(my_b,buf_xy,10);
+        printf("\n ----------- minimax WHITE test size = %d---------\n",xy_size);
+        for(int i=0; i < xy_size;i++){
+            printf(" %d.y = %d\n", i,buf_xy[i][0]);
+            printf(" %d.x = %d\n", i, buf_xy[i][1]);
+        }
+        printf("\n ----------- minimax WHITEtest----------\n");
     }
-/*
+
+
 //
 
 //set_stone
     int temp =0;
+    int backup =-1;
     //y = buf_xy[t].
     for(int t = 0; t < xy_size; t++){
         //my_b[buf_xy[t].first][buf_xy[t].second] = turn; // set Stone
         if( depth % 2 == 0 && depth != 0){//pick max
             int max_sc = -1000000 ;
-            for(int i=0; i<10; i++){
-                temp = miniMax(my_b,1,1,1,1);
+            for(int i=0; i < xy_size; i++){
+                backup = my_b[buf_xy[i][0]][buf_xy[i][1]];
+                my_b[buf_xy[i][0]][buf_xy[i][1]] = turn;
+                temp = miniMax(my_b,depth + 1,1,1,!turn);
+                my_b[buf_xy[i][0]][buf_xy[i][1]] = backup;
+                /*
                 if(max_sc < temp){
                     max_sc = temp;
                     //y = buf_xy[t].first;
                     //x = buf_xy[t].second;
-                }
+                }*/
             }
             return max_sc;
         }else{//pick min
             int min_sc = 100000000;
-            for(int i=0; i<10; i++){
-                temp = miniMax(my_b,1,1,1,1);
+            for(int i=0; i<xy_size; i++){
+                backup = my_b[buf_xy[i][0]][buf_xy[i][1]];
+                my_b[buf_xy[i][0]][buf_xy[i][1]] = turn;
+                temp = miniMax(my_b,depth + 1,1,1,!turn);
+                my_b[buf_xy[i][0]][buf_xy[i][1]] = backup;
+                /*
                 if(min_sc > temp){
                     min_sc = temp;
                     //y = buf_xy[t].first;
                     //x = buf_xy[t].second;
                 }
+                */
             }
             return min_sc;
         }
@@ -2217,5 +4817,5 @@ int Game::miniMax(std::array<std::array<int, 15>, 15> &p_map, int depth, int al,
         //put_stone(y,x);
         return true;
     }
-    */
+
 }
